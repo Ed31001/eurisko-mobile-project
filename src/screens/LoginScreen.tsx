@@ -1,16 +1,42 @@
-import React from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NavigationProp } from '../navigation/navigator/navigator';
 import NavBar from '../components/organisms/NavBar';
 
 const LoginScreen = () => {
+  const navigation = useNavigation<NavigationProp>();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = () => {
+    if (email === 'eurisko@gmail.com' && password === 'academy2025') {
+      navigation.navigate('Verification');
+    } else {
+      Alert.alert('Invalid Credentials', 'Please enter the correct email and password.');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <NavBar title="Welcome Back" />
       <View style={styles.content}>
         <Text style={styles.title}>Login</Text>
-        <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" />
-        <TextInput style={styles.input} placeholder="Password" secureTextEntry />
-        <TouchableOpacity style={styles.button}>
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
       </View>

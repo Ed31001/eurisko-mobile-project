@@ -1,8 +1,21 @@
-import React from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NavigationProp } from '../navigation/navigator/navigator';
 import NavBar from '../components/organisms/NavBar';
 
 const VerificationScreen = () => {
+  const navigation = useNavigation<NavigationProp>();
+  const [otp, setOtp] = useState('');
+
+  const handleVerify = () => {
+    if (otp === '1234') {
+      navigation.navigate('ProductList');
+    } else {
+      Alert.alert('Invalid Code', 'Please enter the correct 4-digit code.');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <NavBar title="Verify Your Account" />
@@ -13,8 +26,10 @@ const VerificationScreen = () => {
           placeholder="_ _ _ _"
           keyboardType="number-pad"
           maxLength={4}
+          value={otp}
+          onChangeText={setOtp}
         />
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={handleVerify}>
           <Text style={styles.buttonText}>Verify</Text>
         </TouchableOpacity>
       </View>

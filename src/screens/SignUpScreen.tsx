@@ -1,8 +1,12 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NavigationProp } from '../navigation/navigator/navigator';
 import NavBar from '../components/organisms/NavBar';
 
 const SignUpScreen = () => {
+  const navigation = useNavigation<NavigationProp>();
+
   return (
     <View style={styles.container}>
       <NavBar title="Welcome" />
@@ -12,7 +16,7 @@ const SignUpScreen = () => {
         <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" />
         <TextInput style={styles.input} placeholder="Password" secureTextEntry />
         <TextInput style={styles.input} placeholder="Phone Number" keyboardType="phone-pad" />
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Login')}>
           <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
       </View>
