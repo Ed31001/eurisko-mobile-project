@@ -1,26 +1,35 @@
 import React from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
-import NavBar from '../components/organisms/NavBar';
+import { FlatList, StyleSheet, View, TouchableOpacity } from 'react-native';
 import ProductItem from '../components/molecules/ProductItem';
 import products from '../../Products.json';
+import { useNavigation } from '@react-navigation/native';
+import { NavigationProp } from '../navigation/navigator/navigator';
 
 const ProductListScreen = () => {
+  const navigation = useNavigation<NavigationProp>();
+
   return (
     <View style={styles.container}>
-      <NavBar
-        title="Products"
-        onLeftPress={() => console.log('Left button pressed')}
-        onRightPress={() => console.log('Right button pressed')}
-      />
       <FlatList
         data={products.data}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
-          <ProductItem
-            title={item.title}
-            price={item.price}
-            imageUrl={item.images[0]?.url || ''}
-          />
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('ProductDetails', {
+                title: item.title,
+                description: item.description,
+                imageUrl: item.images[0]?.url || '',
+                price: item.price,
+              })
+            }
+          >
+            <ProductItem
+              title={item.title}
+              price={item.price}
+              imageUrl={item.images[0]?.url || ''}
+            />
+          </TouchableOpacity>
         )}
         contentContainerStyle={styles.listContent}
       />

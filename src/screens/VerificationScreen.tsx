@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '../navigation/navigator/navigator';
-import NavBar from '../components/organisms/NavBar';
+import { useAuth } from '../context/AuthContext';
 
 const VerificationScreen = () => {
   const navigation = useNavigation<NavigationProp>();
+  const { login } = useAuth(); // Access the login function from AuthContext
   const [otp, setOtp] = useState('');
 
   const handleVerify = () => {
     if (otp === '1234') {
+      login(); // Save the login state after successful verification
       navigation.navigate('ProductList');
     } else {
       Alert.alert('Invalid Code', 'Please enter the correct 4-digit code.');
@@ -18,7 +20,6 @@ const VerificationScreen = () => {
 
   return (
     <View style={styles.container}>
-      <NavBar title="Verify Your Account" />
       <View style={styles.content}>
         <Text style={styles.title}>Enter 4-digit code</Text>
         <TextInput

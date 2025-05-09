@@ -5,6 +5,12 @@ export type RootStackParamList = {
   Login: undefined;
   Verification: undefined;
   ProductList: undefined;
+  ProductDetails: {
+    title: string;
+    description: string;
+    imageUrl: string;
+    price: number;
+  };
 };
 
 export type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
