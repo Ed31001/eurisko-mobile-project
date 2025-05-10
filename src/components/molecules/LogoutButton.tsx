@@ -1,17 +1,13 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, Text, StyleSheet, View, Modal, Button } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { NavigationProp } from '../../navigation/navigator/navigator';
 import { useAuth } from '../../context/AuthContext';
 
 const HeaderRightLogoutButton = () => {
-  const navigation = useNavigation<NavigationProp>();
   const { logout } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleLogout = () => {
     logout(); // Log the user out
-    navigation.navigate('Login'); // Navigate to the Login screen
     setModalVisible(false); // Close the modal
   };
 

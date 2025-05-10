@@ -3,13 +3,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SignUpScreen from '../../screens/SignUpScreen';
 import LoginScreen from '../../screens/LoginScreen';
 import VerificationScreen from '../../screens/VerificationScreen';
-import ProductListScreen from '../../screens/ProductListScreen';
-import ProductDetailsScreen from '../../screens/ProductDetailsScreen';
-import HeaderRightLogoutButton from '../../components/molecules/LogoutButton';
 
 const Stack = createNativeStackNavigator();
 
-const AppStack = () => {
+const AuthStack = () => {
   return (
     <Stack.Navigator
       initialRouteName="SignUp"
@@ -43,24 +40,8 @@ const AppStack = () => {
           title: 'Verify your Account',
         }}
       />
-      <Stack.Screen
-        name="ProductList"
-        component={ProductListScreen}
-        options={{
-          title: 'Products',
-          headerBackVisible: false,
-          headerRight: HeaderRightLogoutButton, // Use the moved component
-        }}
-      />
-      <Stack.Screen
-        name="ProductDetails"
-        component={ProductDetailsScreen}
-        options={{
-          title: 'Product Details',
-        }}
-      />
     </Stack.Navigator>
   );
 };
 
-export default AppStack;
+export default AuthStack;

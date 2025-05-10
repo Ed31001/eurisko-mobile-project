@@ -1,19 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { NavigationProp } from '../navigation/navigator/navigator';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/atoms/Button';
 
 const VerificationScreen = () => {
-  const navigation = useNavigation<NavigationProp>();
-  const { login } = useAuth(); // Access the login function from AuthContext
+  const { login } = useAuth();
   const [otp, setOtp] = useState('');
 
   const handleVerify = () => {
     if (otp === '1234') {
-      login(); // Save the login state after successful verification
-      navigation.navigate('ProductList');
+      login(); // Save the login state
     } else {
       Alert.alert('Invalid Code', 'Please enter the correct 4-digit code.');
     }
