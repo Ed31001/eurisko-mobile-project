@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Image } from 'react-native';
-import styles from '../../styles/ProductItemStyles'; // Adjust the path as necessary
+import useProductItemStyles from '../../styles/ProductItemStyles';
 
 type ProductItemProps = {
   title: string;
@@ -9,6 +9,8 @@ type ProductItemProps = {
 };
 
 const ProductItem = ({ title, price, imageUrl }: ProductItemProps) => {
+  const styles = useProductItemStyles();
+
   return (
     <View style={styles.card}>
       <Image source={{ uri: imageUrl }} style={styles.image} />

@@ -3,19 +3,26 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SignUpScreen from '../../screens/SignUpScreen';
 import LoginScreen from '../../screens/LoginScreen';
 import VerificationScreen from '../../screens/VerificationScreen';
+import ThemeToggle from '../../components/atoms/ThemeToggle';
+import { useTheme } from '../../context/ThemeContext';
 
 const Stack = createNativeStackNavigator();
 
 const AuthStack = () => {
+  const { theme } = useTheme();
+
+  const renderThemeToggle = () => <ThemeToggle />;
+
   return (
     <Stack.Navigator
       initialRouteName="SignUp"
-      screenOptions={{
-        headerStyle: { backgroundColor: 'blue' },
-        headerTintColor: '#fff',
+      screenOptions={({ navigation: _navigation }) => ({
+        headerStyle: { backgroundColor: theme.headerBackground }, // Dynamically set header background
+        headerTintColor: theme.buttonText,
         headerTitleStyle: { fontWeight: 'bold', fontSize: 18 },
         headerTitleAlign: 'center',
-      }}
+        headerRight: renderThemeToggle, // Add ThemeToggle to all screens
+      })}
     >
       <Stack.Screen
         name="SignUp"

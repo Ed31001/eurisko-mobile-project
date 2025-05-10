@@ -1,17 +1,17 @@
 import React from 'react';
-import { TouchableOpacity, Text, ViewStyle } from 'react-native';
-import styles from '../../styles/ButtonStyles'; // Adjust the path as necessary
+import { TouchableOpacity, Text } from 'react-native';
+import useButtonStyles from '../../styles/ButtonStyles';
 
 type ButtonProps = {
   title: string;
   onPress: () => void;
-  color?: string;
-  style?: ViewStyle; // Allow additional styles to be passed
 };
 
-const Button = ({ title, onPress, color = 'blue', style }: ButtonProps) => {
+const Button = ({ title, onPress }: ButtonProps) => {
+  const styles = useButtonStyles();
+
   return (
-    <TouchableOpacity onPress={onPress} style={[styles.button, { backgroundColor: color }, style]}>
+    <TouchableOpacity onPress={onPress} style={styles.button}>
       <Text style={styles.buttonText}>{title}</Text>
     </TouchableOpacity>
   );

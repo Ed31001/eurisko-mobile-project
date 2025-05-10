@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Alert } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/atoms/Button';
-import styles from '../styles/VerificationScreenStyles';
+import useVerificationScreenStyles from '../styles/VerificationScreenStyles';
 
 const VerificationScreen = () => {
   const { login } = useAuth();
+  const styles = useVerificationScreenStyles();
   const [otp, setOtp] = useState('');
 
   const handleVerify = () => {
@@ -23,6 +24,7 @@ const VerificationScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="_ _ _ _"
+          placeholderTextColor={styles.input.color}
           keyboardType="number-pad"
           maxLength={4}
           value={otp}

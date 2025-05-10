@@ -2,13 +2,14 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/navigator/navigator';
-import styles from '../styles/ProductDetailsScreenStyles';
+import useProductDetailsScreenStyles from '../styles/ProductDetailsScreenStyles';
 
 type ProductDetailsScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetails'>;
 
 const ProductDetailsScreen = () => {
   const route = useRoute<ProductDetailsScreenRouteProp>();
   const { title, description, imageUrl, price } = route.params;
+  const styles = useProductDetailsScreenStyles();
 
   return (
     <View style={styles.container}>

@@ -1,32 +1,40 @@
 import { StyleSheet } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
-const styles = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    marginBottom: 16,
-    overflow: 'hidden',
-    elevation: 3,
-  },
-  image: {
-    width: 120,
-    height: 120,
-  },
-  info: {
-    flex: 1,
-    padding: 8,
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  price: {
-    fontSize: 14,
-    color: '#888',
-  },
-});
+const useProductItemStyles = () => {
+  const { theme } = useTheme();
 
-export default styles;
+  return StyleSheet.create({
+    card: {
+      flexDirection: 'row',
+      backgroundColor: theme.cardBackground,
+      borderRadius: 8,
+      marginBottom: 16,
+      overflow: 'hidden',
+      elevation: 3,
+      borderColor: theme.borderColor,
+      borderWidth: 1,
+    },
+    image: {
+      width: 120,
+      height: 120,
+    },
+    info: {
+      flex: 1,
+      padding: 8,
+      justifyContent: 'center',
+    },
+    title: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      marginBottom: 4,
+      color: theme.textColor,
+    },
+    price: {
+      fontSize: 14,
+      color: theme.textColor,
+    },
+  });
+};
+
+export default useProductItemStyles;

@@ -4,13 +4,15 @@ import ProductItem from '../molecules/ProductItem';
 import products from '../../../Products.json';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '../../navigation/navigator/navigator';
-import styles from '../../styles/ProductListScreenStyles';
+import styles from '../../styles/ProductListStyles';
+import { useTheme } from '../../context/ThemeContext';
 
 const ProductList = () => {
   const navigation = useNavigation<NavigationProp>();
+  const { theme } = useTheme();
 
   return (
-    <View style={styles.container}>
+    <View  style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
       <FlatList
         data={products.data}
         keyExtractor={(item) => item._id}

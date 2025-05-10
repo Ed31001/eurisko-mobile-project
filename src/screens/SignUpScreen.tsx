@@ -6,7 +6,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Button from '../components/atoms/Button';
-import styles from '../styles/SignUpScreenStyles';
+import useSignUpScreenStyles from '../styles/SignUpScreenStyles';
 
 const signUpSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -22,6 +22,7 @@ type SignUpFormData = z.infer<typeof signUpSchema>;
 const SignUpScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const styles = useSignUpScreenStyles();
 
   const {
     control,
@@ -48,6 +49,7 @@ const SignUpScreen = () => {
             <TextInput
               style={[styles.input, errors.name && styles.errorInput]}
               placeholder="Name"
+              placeholderTextColor={styles.input.color}
               value={value}
               onChangeText={onChange}
             />
@@ -62,6 +64,7 @@ const SignUpScreen = () => {
             <TextInput
               style={[styles.input, errors.email && styles.errorInput]}
               placeholder="Email"
+              placeholderTextColor={styles.input.color}
               keyboardType="email-address"
               value={value}
               onChangeText={onChange}
@@ -70,19 +73,15 @@ const SignUpScreen = () => {
         />
         {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
 
-        <View
-          style={[
-            styles.passwordContainer,
-            errors.password && styles.errorInput, // Apply error styling to the container
-          ]}
-        >
+        <View style={[styles.passwordContainer, errors.password && styles.errorInput]}>
           <Controller
             name="password"
             control={control}
             render={({ field: { onChange, value } }) => (
               <TextInput
-                style={styles.passwordInput} // Keep the input style separate
+                style={styles.passwordInput}
                 placeholder="Password"
+                placeholderTextColor={styles.passwordInput.color}
                 secureTextEntry={!passwordVisible}
                 value={value}
                 onChangeText={onChange}
@@ -107,6 +106,7 @@ const SignUpScreen = () => {
             <TextInput
               style={[styles.input, errors.phone && styles.errorInput]}
               placeholder="Phone Number"
+              placeholderTextColor={styles.input.color}
               keyboardType="phone-pad"
               value={value}
               onChangeText={onChange}

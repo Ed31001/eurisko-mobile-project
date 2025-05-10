@@ -6,7 +6,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Button from '../components/atoms/Button';
-import styles from '../styles/LoginScreenStyles';
+import useLoginScreenStyles from '../styles/LoginScreenStyles';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -18,6 +18,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 const LoginScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const styles = useLoginScreenStyles();
 
   const {
     control,
@@ -47,6 +48,7 @@ const LoginScreen = () => {
             <TextInput
               style={[styles.input, errors.email && styles.errorInput]}
               placeholder="Email"
+              placeholderTextColor={styles.input.color}
               keyboardType="email-address"
               value={value}
               onChangeText={onChange}
@@ -55,12 +57,7 @@ const LoginScreen = () => {
         />
         {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
 
-        <View
-          style={[
-            styles.passwordContainer,
-            errors.password && styles.errorInput,
-          ]}
-        >
+        <View style={[styles.passwordContainer, errors.password && styles.errorInput]}>
           <Controller
             name="password"
             control={control}
@@ -68,6 +65,7 @@ const LoginScreen = () => {
               <TextInput
                 style={styles.passwordInput}
                 placeholder="Password"
+                placeholderTextColor={styles.passwordInput.color}
                 secureTextEntry={!passwordVisible}
                 value={value}
                 onChangeText={onChange}
