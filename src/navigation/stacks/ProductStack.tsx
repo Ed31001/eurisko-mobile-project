@@ -2,7 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import ProductListScreen from '../../screens/ProductListScreen';
 import ProductDetailsScreen from '../../screens/ProductDetailsScreen';
-import HeaderRightLogoutButton from '../../components/molecules/LogoutButton';
+import HeaderLeftLogoutButton from '../../components/molecules/LogoutButton';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,7 +23,7 @@ const ProductStack = () => {
         options={{
           title: 'Products',
           headerBackVisible: false,
-          headerRight: HeaderRightLogoutButton,
+          headerLeft: HeaderLeftLogoutButton,
         }}
       />
       <Stack.Screen

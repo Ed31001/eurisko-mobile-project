@@ -1,5 +1,6 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle } from 'react-native';
+import { TouchableOpacity, Text, ViewStyle } from 'react-native';
+import styles from '../../styles/ButtonStyles'; // Adjust the path as necessary
 
 type ButtonProps = {
   title: string;
@@ -15,21 +16,5 @@ const Button = ({ title, onPress, color = 'blue', style }: ButtonProps) => {
     </TouchableOpacity>
   );
 };
-
-const styles = StyleSheet.create({
-  button: {
-    height: 50,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 16,
-    paddingHorizontal: 16,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});
 
 export default Button;

@@ -1,9 +1,10 @@
 import React from 'react';
-import { FlatList, StyleSheet, View, TouchableOpacity } from 'react-native';
+import { FlatList, View, TouchableOpacity } from 'react-native';
 import ProductItem from '../molecules/ProductItem';
 import products from '../../../Products.json';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '../../navigation/navigator/navigator';
+import styles from '../../styles/ProductListScreenStyles';
 
 const ProductList = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -36,15 +37,5 @@ const ProductList = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'lightgray',
-  },
-  listContent: {
-    padding: 16,
-  },
-});
 
 export default ProductList;

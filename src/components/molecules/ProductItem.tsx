@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image } from 'react-native';
+import styles from '../../styles/ProductItemStyles'; // Adjust the path as necessary
 
 type ProductItemProps = {
   title: string;
@@ -18,34 +19,5 @@ const ProductItem = ({ title, price, imageUrl }: ProductItemProps) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    marginBottom: 16,
-    overflow: 'hidden',
-    elevation: 3,
-  },
-  image: {
-    width: 120,
-    height: 120,
-  },
-  info: {
-    flex: 1,
-    padding: 8,
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  price: {
-    fontSize: 14,
-    color: '#888',
-  },
-});
 
 export default ProductItem;
