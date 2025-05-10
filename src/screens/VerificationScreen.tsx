@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '../navigation/navigator/navigator';
 import { useAuth } from '../context/AuthContext';
+import Button from '../components/atoms/Button';
 
 const VerificationScreen = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -30,9 +31,7 @@ const VerificationScreen = () => {
           value={otp}
           onChangeText={setOtp}
         />
-        <TouchableOpacity style={styles.button} onPress={handleVerify}>
-          <Text style={styles.buttonText}>Verify</Text>
-        </TouchableOpacity>
+        <Button title="Verify" onPress={handleVerify} />
       </View>
     </View>
   );
@@ -65,19 +64,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     letterSpacing: 8,
-  },
-  button: {
-    height: 50,
-    backgroundColor: 'blue',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
 });
 

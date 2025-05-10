@@ -5,6 +5,7 @@ import { NavigationProp } from '../navigation/navigator/navigator';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import Button from '../components/atoms/Button';
 
 const signUpSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -69,24 +70,24 @@ const SignUpScreen = () => {
         {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
 
         <View
-           style={[
-             styles.passwordContainer,
-             errors.password && styles.errorInput, // Apply error styling to the container
-           ]}
+          style={[
+            styles.passwordContainer,
+            errors.password && styles.errorInput, // Apply error styling to the container
+          ]}
         >
-           <Controller
-             name="password"
-             control={control}
-             render={({ field: { onChange, value } }) => (
-               <TextInput
-                 style={styles.passwordInput} // Keep the input style separate
-                 placeholder="Password"
-                 secureTextEntry={!passwordVisible}
-                 value={value}
-                 onChangeText={onChange}
-               />
-             )}
-           />
+          <Controller
+            name="password"
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                style={styles.passwordInput} // Keep the input style separate
+                placeholder="Password"
+                secureTextEntry={!passwordVisible}
+                value={value}
+                onChangeText={onChange}
+              />
+            )}
+          />
           <TouchableOpacity
             onPress={() => setPasswordVisible(!passwordVisible)}
             style={styles.showPasswordButton}
@@ -113,9 +114,7 @@ const SignUpScreen = () => {
         />
         {errors.phone && <Text style={styles.errorText}>{errors.phone.message}</Text>}
 
-        <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
-          <Text style={styles.buttonText}>Sign Up</Text>
-        </TouchableOpacity>
+        <Button title="Sign Up" onPress={handleSubmit(onSubmit)} />
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
           <Text style={styles.linkText}>Already have an account? Log in</Text>
         </TouchableOpacity>
@@ -168,19 +167,6 @@ const styles = StyleSheet.create({
   },
   showPasswordText: {
     color: 'blue',
-    fontWeight: 'bold',
-  },
-  button: {
-    height: 50,
-    backgroundColor: 'blue',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
     fontWeight: 'bold',
   },
   linkText: {
