@@ -17,7 +17,10 @@ const ThemedApp = () => {
   const { theme } = useTheme();
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.backgroundColor }]}
+      edges={['left', 'right', 'bottom']} // Exclude top padding
+    >
       <AppNavigator />
     </SafeAreaView>
   );

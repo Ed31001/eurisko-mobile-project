@@ -2,7 +2,6 @@ import { Dimensions, PixelRatio } from 'react-native';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-// Base dimensions for portrait and landscape (iPhone 8)
 const BASE_WIDTH_PORTRAIT = 375;
 const BASE_HEIGHT_PORTRAIT = 667;
 const BASE_WIDTH_LANDSCAPE = 667;

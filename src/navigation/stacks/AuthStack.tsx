@@ -5,6 +5,7 @@ import LoginScreen from '../../screens/LoginScreen';
 import VerificationScreen from '../../screens/VerificationScreen';
 import ThemeToggle from '../../components/atoms/ThemeToggle';
 import { useTheme } from '../../context/ThemeContext';
+import { moderateScale } from '../../utils/responsive';
 
 const Stack = createNativeStackNavigator();
 
@@ -16,14 +17,17 @@ const AuthStack = () => {
   return (
     <Stack.Navigator
       initialRouteName="SignUp"
-      screenOptions={({ navigation: _navigation }) => ({
-        headerStyle: { backgroundColor: theme.headerBackground, height: 40 },
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: theme.headerBackground,
+          height: moderateScale(40),
+        },
         headerTintColor: theme.buttonText,
         headerTitleStyle: { fontWeight: 'bold', fontSize: 18, lineHeight: 22 },
         headerTitleAlign: 'center',
         headerTitleContainerStyle: { marginVertical: 0, paddingVertical: 0 },
         headerRight: renderThemeToggle,
-      })}
+      }}
     >
       <Stack.Screen
         name="SignUp"
