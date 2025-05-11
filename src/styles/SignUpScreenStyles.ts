@@ -10,10 +10,21 @@ const useSignUpScreenStyles = () => {
       flex: 1,
       backgroundColor: theme.backgroundColor,
     },
-    content: {
+    scrollView: {
       flex: 1,
+    },
+    content: {
       padding: moderateScale(16),
       justifyContent: 'center',
+    },
+    scrollViewContent: {
+      flexGrow: 1,
+    },
+    scrollViewContentPortrait: {
+      justifyContent: 'center',
+    },
+    scrollViewContentLandscape: {
+      justifyContent: 'flex-start',
     },
     title: {
       fontSize: moderateScale(24),

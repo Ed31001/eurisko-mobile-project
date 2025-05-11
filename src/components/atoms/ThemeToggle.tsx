@@ -6,16 +6,13 @@ const ThemeToggle = () => {
   const { isDarkMode, toggleTheme } = useTheme();
 
   return (
-    <TouchableOpacity onPress={toggleTheme} style={styles.container}>
+    <TouchableOpacity onPress={toggleTheme}>
       <Text style={styles.icon}>{isDarkMode ? '🌙' : '☀️'}</Text>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 8,
-  },
   icon: {
     fontSize: 24,
   },

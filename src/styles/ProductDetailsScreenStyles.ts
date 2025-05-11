@@ -6,10 +6,19 @@ const useProductDetailsScreenStyles = () => {
   const { theme } = useTheme();
 
   return StyleSheet.create({
-    container: {
+    scrollView: {
       flex: 1,
+    },
+    container: {
+      flexGrow: 1,
       padding: moderateScale(16),
       backgroundColor: theme.backgroundColor,
+    },
+    scrollViewContentPortrait: {
+      justifyContent: 'center',
+    },
+    scrollViewContentLandscape: {
+      justifyContent: 'flex-start',
     },
     image: {
       width: '100%',

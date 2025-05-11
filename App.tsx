@@ -4,7 +4,8 @@ import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import AuthStack from './src/navigation/stacks/AuthStack';
 import ProductStack from './src/navigation/stacks/ProductStack';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const AppNavigator = () => {
   const { isLoggedIn } = useAuth();
@@ -16,9 +17,9 @@ const ThemedApp = () => {
   const { theme } = useTheme();
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
       <AppNavigator />
-    </View>
+    </SafeAreaView>
   );
 };
 

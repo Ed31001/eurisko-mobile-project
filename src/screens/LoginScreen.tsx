@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '../navigation/navigator/navigator';
 import { useForm, Controller } from 'react-hook-form';
@@ -18,6 +18,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 const LoginScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [isPortrait, setIsPortrait] = useState(true);
   const styles = useLoginScreenStyles();
 
   const {
@@ -27,6 +28,17 @@ const LoginScreen = () => {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
+
+  useEffect(() => {
+    const onChange = ({ window }: { window: { width: number; height: number } }) => {
+      setIsPortrait(window.height >= window.width);
+    };
+    const subscription = Dimensions.addEventListener('change', onChange);
+    onChange({ window: Dimensions.get('window') });
+    return () => {
+      subscription?.remove();
+    };
+  }, []);
 
   const onSubmit = (data: LoginFormData) => {
     if (data.email === 'eurisko@gmail.com' && data.password === 'academy2025') {
@@ -38,7 +50,15 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.content,
+          styles.scrollViewContent,
+          isPortrait ? styles.scrollViewContentPortrait : styles.scrollViewContentLandscape,
+        ]}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.title}>Login</Text>
 
         <Controller
@@ -87,7 +107,7 @@ const LoginScreen = () => {
         <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
           <Text style={styles.linkText}>Don't have an account? Sign up</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     </View>
   );
 };

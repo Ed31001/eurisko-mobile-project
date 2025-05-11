@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '../navigation/navigator/navigator';
 import { useForm, Controller } from 'react-hook-form';
@@ -22,6 +22,7 @@ type SignUpFormData = z.infer<typeof signUpSchema>;
 const SignUpScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [isPortrait, setIsPortrait] = useState(true);
   const styles = useSignUpScreenStyles();
 
   const {
@@ -32,6 +33,17 @@ const SignUpScreen = () => {
     resolver: zodResolver(signUpSchema),
   });
 
+  useEffect(() => {
+    const onChange = ({ window }: { window: { width: number; height: number } }) => {
+      setIsPortrait(window.height >= window.width);
+    };
+    const subscription = Dimensions.addEventListener('change', onChange);
+    onChange({ window: Dimensions.get('window') });
+    return () => {
+      subscription?.remove();
+    };
+  }, []);
+
   const onSubmit = (data: SignUpFormData) => {
     console.log('Form Data:', data);
     navigation.navigate('Login');
@@ -39,7 +51,15 @@ const SignUpScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.content,
+          styles.scrollViewContent,
+          isPortrait ? styles.scrollViewContentPortrait : styles.scrollViewContentLandscape,
+        ]}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.title}>Sign Up</Text>
 
         <Controller
@@ -119,7 +139,7 @@ const SignUpScreen = () => {
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
           <Text style={styles.linkText}>Already have an account? Log in</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     </View>
   );
 };
