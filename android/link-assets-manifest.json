@@ -1,0 +1,17 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/OpenSans-Regular.ttf",
+      "sha1": "76ea5d4c70539ad9b0e7faf7e4fbe3bae8a961c7"
+    },
+    {
+      "path": "src/assets/fonts/Poppins-SemiBold.ttf",
+      "sha1": "8a4ace9392d06bcb7f8ea2f5169b07e4c383a90d"
+    },
+    {
+      "path": "src/assets/fonts/Roboto-Bold.ttf",
+      "sha1": "508c35dee818addce6cc6d1fb6e42f039da5a7cf"
+    }
+  ]
+}

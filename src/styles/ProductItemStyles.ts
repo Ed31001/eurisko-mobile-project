@@ -26,12 +26,14 @@ const useProductItemStyles = () => {
       justifyContent: 'center',
     },
     title: {
+      fontFamily: 'OpenSans-Regular',
       fontSize: moderateScale(16),
       fontWeight: 'bold',
       marginBottom: moderateScale(4),
       color: theme.textColor,
     },
     price: {
+      fontFamily: 'OpenSans-Regular',
       fontSize: moderateScale(14),
       color: theme.textColor,
     },

@@ -5,7 +5,6 @@ import ProductDetailsScreen from '../../screens/ProductDetailsScreen';
 import HeaderLeftLogoutButton from '../../components/molecules/LogoutButton';
 import ThemeToggle from '../../components/atoms/ThemeToggle';
 import { useTheme } from '../../context/ThemeContext';
-import { moderateScale } from '../../utils/responsive';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,12 +19,13 @@ const ProductStack = () => {
       screenOptions={{
         headerStyle: {
           backgroundColor: theme.headerBackground,
-          height: moderateScale(40),
         },
         headerTintColor: theme.buttonText,
-        headerTitleStyle: { fontWeight: 'bold', fontSize: 18, lineHeight: 22 },
+        headerTitleStyle: {
+          fontFamily: 'Roboto-Bold',
+          fontSize: 18,
+        },
         headerTitleAlign: 'center',
-        headerTitleContainerStyle: { marginVertical: 0, paddingVertical: 0 },
         headerRight: renderThemeToggle,
       }}
     >

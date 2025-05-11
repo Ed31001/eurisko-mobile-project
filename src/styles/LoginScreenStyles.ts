@@ -27,13 +27,14 @@ const useLoginScreenStyles = () => {
       justifyContent: 'flex-start',
     },
     title: {
+      fontFamily: 'Poppins-SemiBold',
       fontSize: moderateScale(24),
-      fontWeight: 'bold',
       marginBottom: moderateScale(24),
       textAlign: 'center',
       color: theme.textColor,
     },
     input: {
+      fontFamily: 'OpenSans-Regular',
       height: moderateScale(50),
       borderColor: theme.borderColor,
       borderWidth: 1,
@@ -66,6 +67,7 @@ const useLoginScreenStyles = () => {
       fontWeight: 'bold',
     },
     linkText: {
+      fontFamily: 'OpenSans-Regular',
       marginTop: moderateScale(16),
       fontSize: moderateScale(14),
       color: theme.textColor,
@@ -73,6 +75,7 @@ const useLoginScreenStyles = () => {
       textDecorationLine: 'underline',
     },
     errorText: {
+      fontFamily: 'OpenSans-Regular',
       color: theme.invalidInput,
       fontSize: moderateScale(12),
       marginBottom: moderateScale(8),

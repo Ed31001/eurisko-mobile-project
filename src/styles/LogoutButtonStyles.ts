@@ -9,6 +9,7 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(5),
   },
   headerButtonText: {
+    fontFamily: 'OpenSans-Regular',
     color: '#fff',
     fontWeight: 'bold',
     fontSize: moderateScale(14),
@@ -27,6 +28,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalText: {
+    fontFamily: 'OpenSans-Regular',
     fontSize: moderateScale(16),
     marginBottom: moderateScale(20),
     textAlign: 'center',

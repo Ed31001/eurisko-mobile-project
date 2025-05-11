@@ -27,12 +27,13 @@ const useProductDetailsScreenStyles = () => {
       marginBottom: moderateScale(16),
     },
     title: {
+      fontFamily: 'Poppins-SemiBold',
       fontSize: moderateScale(24),
-      fontWeight: 'bold',
       marginBottom: moderateScale(8),
       color: theme.textColor,
     },
     description: {
+      fontFamily: 'OpenSans-Regular',
       fontSize: moderateScale(16),
       color: theme.textColor,
       marginBottom: moderateScale(16),

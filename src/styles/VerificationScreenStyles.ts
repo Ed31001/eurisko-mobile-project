@@ -16,13 +16,14 @@ const useVerificationScreenStyles = () => {
       justifyContent: 'center',
     },
     title: {
+      fontFamily: 'Poppins-SemiBold',
       fontSize: moderateScale(24),
-      fontWeight: 'bold',
       marginBottom: moderateScale(24),
       textAlign: 'center',
       color: theme.textColor,
     },
     input: {
+      fontFamily: 'OpenSans-Regular',
       height: moderateScale(50),
       borderColor: theme.borderColor,
       borderWidth: 1,

@@ -16,6 +16,7 @@ const useButtonStyles = () => {
       backgroundColor: theme.buttonBackground,
     },
     buttonText: {
+      fontFamily: 'OpenSans-Regular',
       color: theme.buttonText,
       fontSize: moderateScale(16),
       fontWeight: 'bold',
