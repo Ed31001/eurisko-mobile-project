@@ -1,16 +1,17 @@
 import { StyleSheet } from 'react-native';
+import { moderateScale } from '../utils/responsive';
 
 const styles = StyleSheet.create({
   headerButton: {
-    marginRight: 10,
-    padding: 8,
+    marginRight: moderateScale(10),
+    padding: moderateScale(8),
     backgroundColor: 'red',
-    borderRadius: 5,
+    borderRadius: moderateScale(5),
   },
   headerButtonText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: moderateScale(14),
   },
   modalContainer: {
     flex: 1,
@@ -19,15 +20,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: 300,
-    padding: 20,
+    width: moderateScale(300),
+    padding: moderateScale(20),
     backgroundColor: 'white',
-    borderRadius: 10,
+    borderRadius: moderateScale(10),
     alignItems: 'center',
   },
   modalText: {
-    fontSize: 16,
-    marginBottom: 20,
+    fontSize: moderateScale(16),
+    marginBottom: moderateScale(20),
     textAlign: 'center',
   },
   modalButtons: {

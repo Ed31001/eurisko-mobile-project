@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { moderateScale } from '../utils/responsive';
 
 const useProductDetailsScreenStyles = () => {
   const { theme } = useTheme();
@@ -7,30 +8,30 @@ const useProductDetailsScreenStyles = () => {
   return StyleSheet.create({
     container: {
       flex: 1,
-      padding: 16,
+      padding: moderateScale(16),
       backgroundColor: theme.backgroundColor,
     },
     image: {
       width: '100%',
-      height: 400,
-      borderRadius: 8,
-      marginBottom: 16,
+      height: moderateScale(400),
+      borderRadius: moderateScale(8),
+      marginBottom: moderateScale(16),
     },
     title: {
-      fontSize: 24,
+      fontSize: moderateScale(24),
       fontWeight: 'bold',
-      marginBottom: 8,
+      marginBottom: moderateScale(8),
       color: theme.textColor,
     },
     description: {
-      fontSize: 16,
+      fontSize: moderateScale(16),
       color: theme.textColor,
-      marginBottom: 16,
+      marginBottom: moderateScale(16),
     },
     price: {
-      fontSize: 18,
+      fontSize: moderateScale(18),
       fontWeight: 'bold',
-      marginBottom: 24,
+      marginBottom: moderateScale(24),
       color: theme.textColor,
     },
     buttonContainer: {
@@ -39,16 +40,16 @@ const useProductDetailsScreenStyles = () => {
     },
     button: {
       flex: 1,
-      height: 50,
+      height: moderateScale(50),
       backgroundColor: theme.buttonBackground,
-      borderRadius: 8,
+      borderRadius: moderateScale(8),
       justifyContent: 'center',
       alignItems: 'center',
-      marginHorizontal: 8,
+      marginHorizontal: moderateScale(8),
     },
     buttonText: {
       color: theme.buttonText,
-      fontSize: 16,
+      fontSize: moderateScale(16),
       fontWeight: 'bold',
     },
   });

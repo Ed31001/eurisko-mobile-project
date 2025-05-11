@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { TouchableOpacity, Text, View, Modal, Button } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
-import styles from '../../styles/LogoutButtonStyles'; // Adjust the path as necessary
+import styles from '../../styles/LogoutButtonStyles';
 
 const HeaderLeftLogoutButton = () => {
   const { logout } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
 
   const handleLogout = () => {
-    logout(); // Log the user out
-    setModalVisible(false); // Close the modal
+    logout();
+    setModalVisible(false);
   };
 
   return (

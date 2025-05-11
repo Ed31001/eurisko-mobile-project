@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { moderateScale } from '../utils/responsive';
 
 const useProductItemStyles = () => {
   const { theme } = useTheme();
@@ -8,30 +9,30 @@ const useProductItemStyles = () => {
     card: {
       flexDirection: 'row',
       backgroundColor: theme.cardBackground,
-      borderRadius: 8,
-      marginBottom: 16,
+      borderRadius: moderateScale(8),
+      marginBottom: moderateScale(16),
       overflow: 'hidden',
       elevation: 3,
       borderColor: theme.borderColor,
       borderWidth: 1,
     },
     image: {
-      width: 120,
-      height: 120,
+      width: moderateScale(120),
+      height: moderateScale(120),
     },
     info: {
       flex: 1,
-      padding: 8,
+      padding: moderateScale(8),
       justifyContent: 'center',
     },
     title: {
-      fontSize: 16,
+      fontSize: moderateScale(16),
       fontWeight: 'bold',
-      marginBottom: 4,
+      marginBottom: moderateScale(4),
       color: theme.textColor,
     },
     price: {
-      fontSize: 14,
+      fontSize: moderateScale(14),
       color: theme.textColor,
     },
   });

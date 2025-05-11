@@ -11,7 +11,7 @@ const VerificationScreen = () => {
 
   const handleVerify = () => {
     if (otp === '1234') {
-      login(); // Save the login state
+      login();
     } else {
       Alert.alert('Invalid Code', 'Please enter the correct 4-digit code.');
     }

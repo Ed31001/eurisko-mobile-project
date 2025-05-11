@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { moderateScale } from '../utils/responsive';
 
 const useSignUpScreenStyles = () => {
   const { theme } = useTheme();
@@ -11,23 +12,23 @@ const useSignUpScreenStyles = () => {
     },
     content: {
       flex: 1,
-      padding: 16,
+      padding: moderateScale(16),
       justifyContent: 'center',
     },
     title: {
-      fontSize: 24,
+      fontSize: moderateScale(24),
       fontWeight: 'bold',
-      marginBottom: 24,
+      marginBottom: moderateScale(24),
       textAlign: 'center',
       color: theme.textColor,
     },
     input: {
-      height: 50,
+      height: moderateScale(50),
       borderColor: theme.borderColor,
       borderWidth: 1,
-      borderRadius: 8,
-      paddingHorizontal: 12,
-      marginBottom: 16,
+      borderRadius: moderateScale(8),
+      paddingHorizontal: moderateScale(12),
+      marginBottom: moderateScale(16),
       backgroundColor: theme.inputBackground,
       color: theme.textColor,
     },
@@ -36,34 +37,34 @@ const useSignUpScreenStyles = () => {
       alignItems: 'center',
       borderColor: theme.borderColor,
       borderWidth: 1,
-      borderRadius: 8,
-      marginBottom: 16,
+      borderRadius: moderateScale(8),
+      marginBottom: moderateScale(16),
       backgroundColor: theme.inputBackground,
     },
     passwordInput: {
       flex: 1,
-      height: 50,
-      paddingHorizontal: 12,
+      height: moderateScale(50),
+      paddingHorizontal: moderateScale(12),
       color: theme.textColor,
     },
     showPasswordButton: {
-      paddingHorizontal: 12,
+      paddingHorizontal: moderateScale(12),
     },
     showPasswordText: {
       color: theme.passwordButton,
       fontWeight: 'bold',
     },
     linkText: {
-      marginTop: 16,
-      fontSize: 14,
+      marginTop: moderateScale(16),
+      fontSize: moderateScale(14),
       color: theme.textColor,
       textAlign: 'center',
       textDecorationLine: 'underline',
     },
     errorText: {
       color: theme.invalidInput,
-      fontSize: 14,
-      marginBottom: 8,
+      fontSize: moderateScale(14),
+      marginBottom: moderateScale(8),
     },
     errorInput: {
       borderColor: theme.invalidInput,

@@ -1,22 +1,23 @@
 import { StyleSheet } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { moderateScale } from '../utils/responsive';
 
 const useButtonStyles = () => {
   const { theme } = useTheme();
 
   return StyleSheet.create({
     button: {
-      height: 50,
-      borderRadius: 8,
+      height: moderateScale(50),
+      borderRadius: moderateScale(8),
       justifyContent: 'center',
       alignItems: 'center',
-      marginTop: 16,
-      paddingHorizontal: 16,
+      marginTop: moderateScale(16),
+      paddingHorizontal: moderateScale(16),
       backgroundColor: theme.buttonBackground,
     },
     buttonText: {
       color: theme.buttonText,
-      fontSize: 16,
+      fontSize: moderateScale(16),
       fontWeight: 'bold',
     },
   });

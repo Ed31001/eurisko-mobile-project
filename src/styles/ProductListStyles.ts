@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { moderateScale } from '../utils/responsive';
 
 const styles = StyleSheet.create({
   container: {
@@ -6,7 +7,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'lightgray',
   },
   listContent: {
-    padding: 16,
+    padding: moderateScale(16),
   },
 });
 

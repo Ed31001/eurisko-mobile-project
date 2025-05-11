@@ -4,7 +4,7 @@ import ThemeStyles from '../styles/ThemeStyles';
 type ThemeContextType = {
   isDarkMode: boolean;
   toggleTheme: () => void;
-  theme: typeof ThemeStyles.light; // Add theme to the context
+  theme: typeof ThemeStyles.light;
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);

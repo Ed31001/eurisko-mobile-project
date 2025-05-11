@@ -4,7 +4,7 @@ import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import AuthStack from './src/navigation/stacks/AuthStack';
 import ProductStack from './src/navigation/stacks/ProductStack';
-import { View, StyleSheet, StatusBar } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 
 const AppNavigator = () => {
   const { isLoggedIn } = useAuth();
@@ -17,7 +17,6 @@ const ThemedApp = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
-      <StatusBar barStyle={theme.statusBarStyle} />
       <AppNavigator />
     </View>
   );

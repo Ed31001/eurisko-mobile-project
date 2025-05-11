@@ -17,11 +17,11 @@ const AuthStack = () => {
     <Stack.Navigator
       initialRouteName="SignUp"
       screenOptions={({ navigation: _navigation }) => ({
-        headerStyle: { backgroundColor: theme.headerBackground }, // Dynamically set header background
+        headerStyle: { backgroundColor: theme.headerBackground },
         headerTintColor: theme.buttonText,
         headerTitleStyle: { fontWeight: 'bold', fontSize: 18 },
         headerTitleAlign: 'center',
-        headerRight: renderThemeToggle, // Add ThemeToggle to all screens
+        headerRight: renderThemeToggle,
       })}
     >
       <Stack.Screen
