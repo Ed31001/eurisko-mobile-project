@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Button from '../components/atoms/Button';
 import useLoginScreenStyles from '../styles/LoginScreenStyles';
+import { useAuthStore } from '../store/useAuthStore';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -16,6 +17,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginScreen = () => {
+  const { login, error, loading } = useAuthStore(); // Add loading
   const navigation = useNavigation<NavigationProp>();
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [isPortrait, setIsPortrait] = useState(true);
@@ -40,12 +42,12 @@ const LoginScreen = () => {
     };
   }, []);
 
-  const onSubmit = (data: LoginFormData) => {
-    if (data.email === 'eurisko@gmail.com' && data.password === 'academy2025') {
-      navigation.navigate('Verification');
-    } else {
-      Alert.alert('Invalid Credentials', 'Please enter the correct email and password.');
+  const onSubmit = async (data: LoginFormData) => {
+    const success = await login(data.email, data.password);
+    if (!success) {
+      Alert.alert('Login Failed', error || 'Please check your credentials and try again.');
     }
+    // No need for navigation here as the AppNavigator will handle it based on isLoggedIn
   };
 
   return (
@@ -103,7 +105,10 @@ const LoginScreen = () => {
         </View>
         {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
 
-        <Button title="Login" onPress={handleSubmit(onSubmit)} />
+        <Button
+          title={loading ? 'Logging in...' : 'Login'}
+          onPress={handleSubmit(onSubmit)}
+        />
         <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
           <Text style={styles.linkText}>Don't have an account? Sign up</Text>
         </TouchableOpacity>

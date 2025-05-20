@@ -1,9 +1,9 @@
 import { StyleSheet } from 'react-native';
-import { useTheme } from '../context/ThemeContext';
+import { useThemeStore } from '../store/useThemeStore';
 import { moderateScale } from '../utils/responsive';
 
 const useProductDetailsScreenStyles = () => {
-  const { theme } = useTheme();
+  const theme = useThemeStore((state) => state.theme);
 
   return StyleSheet.create({
     scrollView: {
@@ -58,6 +58,7 @@ const useProductDetailsScreenStyles = () => {
       marginHorizontal: moderateScale(8),
     },
     buttonText: {
+      fontFamily: 'OpenSans-Regular',
       color: theme.buttonText,
       fontSize: moderateScale(16),
       fontWeight: 'bold',

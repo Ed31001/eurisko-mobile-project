@@ -1,9 +1,9 @@
 import { StyleSheet } from 'react-native';
-import { useTheme } from '../context/ThemeContext';
+import { useThemeStore } from '../store/useThemeStore';
 import { moderateScale } from '../utils/responsive';
 
 const useLoginScreenStyles = () => {
-  const { theme } = useTheme();
+  const theme = useThemeStore((state) => state.theme);
 
   return StyleSheet.create({
     container: {

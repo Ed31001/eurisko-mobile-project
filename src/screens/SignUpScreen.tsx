@@ -1,28 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Dimensions,
+  Alert,
+  Image,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '../navigation/navigator/navigator';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { launchImageLibrary } from 'react-native-image-picker';
 import Button from '../components/atoms/Button';
 import useSignUpScreenStyles from '../styles/SignUpScreenStyles';
+import { useAuthStore } from '../store/useAuthStore';
 
 const signUpSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters long'),
-  phone: z
-    .string()
-    .length(8, 'Phone number must be exactly 8 digits long')
-    .regex(/^\d+$/, 'Phone number must contain only digits'),
 });
+
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
 const SignUpScreen = () => {
+  const { signUp, setEmail, error, loading } = useAuthStore();
   const navigation = useNavigation<NavigationProp>();
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [isPortrait, setIsPortrait] = useState(true);
+  const [profileImage, setProfileImage] = useState<any>(null);
   const styles = useSignUpScreenStyles();
 
   const {
@@ -44,9 +55,55 @@ const SignUpScreen = () => {
     };
   }, []);
 
-  const onSubmit = (data: SignUpFormData) => {
-    console.log('Form Data:', data);
-    navigation.navigate('Login');
+const handleImagePick = async () => {
+  try {
+    const result = await launchImageLibrary({
+      mediaType: 'photo',
+      quality: 0.8,
+      maxWidth: 500,
+      maxHeight: 500,
+      selectionLimit: 1,
+      includeBase64: false,
+      presentationStyle: 'fullScreen',
+    });
+
+    if (!result.didCancel && result.assets && result.assets[0]) {
+      const asset = result.assets[0];
+      setProfileImage({
+        uri: asset.uri,
+        type: asset.type || 'image/jpeg',
+        name: asset.fileName || 'profile.jpg',
+      });
+    }
+  } catch (err) {
+    console.error('Error picking image:', err);
+    Alert.alert('Error', 'Failed to pick image. Please try again.');
+  }
+};
+
+  const onSubmit = async (data: SignUpFormData) => {
+    const success = await signUp({
+      email: data.email,
+      password: data.password,
+      firstName: data.firstName,
+      lastName: data.lastName,
+    });
+
+    if (success) {
+      setEmail(data.email);
+      Alert.alert(
+        'Success',
+        'Please check your email for the verification code.',
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('Verification'),
+          },
+        ]
+      );
+    } else {
+      Alert.alert('Error', error || 'Sign up failed. Please try again.');
+    }
   };
 
   return (
@@ -62,20 +119,52 @@ const SignUpScreen = () => {
       >
         <Text style={styles.title}>Sign Up</Text>
 
+        <TouchableOpacity
+          style={styles.imagePickerContainer}
+          onPress={handleImagePick}
+        >
+          {profileImage ? (
+            <Image
+              source={{ uri: profileImage.uri }}
+              style={styles.profileImage}
+            />
+          ) : (
+            <>
+              <Text style={styles.imagePickerText}>Add Profile Picture</Text>
+              <Text style={styles.imagePickerSubText}>(Optional)</Text>
+            </>
+          )}
+        </TouchableOpacity>
+
         <Controller
-          name="name"
+          name="firstName"
           control={control}
           render={({ field: { onChange, value } }) => (
             <TextInput
-              style={[styles.input, errors.name && styles.errorInput]}
-              placeholder="Name"
+              style={[styles.input, errors.firstName && styles.errorInput]}
+              placeholder="First Name"
               placeholderTextColor={styles.input.color}
               value={value}
               onChangeText={onChange}
             />
           )}
         />
-        {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
+        {errors.firstName && <Text style={styles.errorText}>{errors.firstName.message}</Text>}
+
+        <Controller
+          name="lastName"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <TextInput
+              style={[styles.input, errors.lastName && styles.errorInput]}
+              placeholder="Last Name"
+              placeholderTextColor={styles.input.color}
+              value={value}
+              onChangeText={onChange}
+            />
+          )}
+        />
+        {errors.lastName && <Text style={styles.errorText}>{errors.lastName.message}</Text>}
 
         <Controller
           name="email"
@@ -119,23 +208,10 @@ const SignUpScreen = () => {
         </View>
         {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
 
-        <Controller
-          name="phone"
-          control={control}
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              style={[styles.input, errors.phone && styles.errorInput]}
-              placeholder="Phone Number"
-              placeholderTextColor={styles.input.color}
-              keyboardType="phone-pad"
-              value={value}
-              onChangeText={onChange}
-            />
-          )}
+        <Button
+          title={loading ? 'Signing up...' : 'Sign Up'}
+          onPress={handleSubmit(onSubmit)}
         />
-        {errors.phone && <Text style={styles.errorText}>{errors.phone.message}</Text>}
-
-        <Button title="Sign Up" onPress={handleSubmit(onSubmit)} />
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
           <Text style={styles.linkText}>Already have an account? Log in</Text>
         </TouchableOpacity>

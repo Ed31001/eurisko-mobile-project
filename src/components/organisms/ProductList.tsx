@@ -5,11 +5,11 @@ import products from '../../../Products.json';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '../../navigation/navigator/navigator';
 import styles from '../../styles/ProductListStyles';
-import { useTheme } from '../../context/ThemeContext';
+import { useThemeStore } from '../../store/useThemeStore';
 
 const ProductList = () => {
   const navigation = useNavigation<NavigationProp>();
-  const { theme } = useTheme();
+  const theme = useThemeStore((state) => state.theme);
 
   return (
     <View  style={[styles.container, { backgroundColor: theme.backgroundColor }]}>

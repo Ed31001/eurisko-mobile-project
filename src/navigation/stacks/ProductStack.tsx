@@ -4,13 +4,12 @@ import ProductListScreen from '../../screens/ProductListScreen';
 import ProductDetailsScreen from '../../screens/ProductDetailsScreen';
 import HeaderLeftLogoutButton from '../../components/molecules/LogoutButton';
 import ThemeToggle from '../../components/atoms/ThemeToggle';
-import { useTheme } from '../../context/ThemeContext';
+import { useThemeStore } from '../../store/useThemeStore';
 
 const Stack = createNativeStackNavigator();
 
 const ProductStack = () => {
-  const { theme } = useTheme();
-
+  const theme = useThemeStore((state) => state.theme);
   const renderThemeToggle = () => <ThemeToggle />;
 
   return (

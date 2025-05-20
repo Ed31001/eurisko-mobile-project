@@ -1,9 +1,9 @@
 import { StyleSheet } from 'react-native';
-import { useTheme } from '../context/ThemeContext';
+import { useThemeStore } from '../store/useThemeStore';
 import { moderateScale } from '../utils/responsive';
 
 const useSignUpScreenStyles = () => {
-  const { theme } = useTheme();
+  const theme = useThemeStore((state) => state.theme);
 
   return StyleSheet.create({
     container: {
@@ -82,6 +82,37 @@ const useSignUpScreenStyles = () => {
     },
     errorInput: {
       borderColor: theme.invalidInput,
+    },
+    imagePickerContainer: {
+      width: moderateScale(120),
+      height: moderateScale(120),
+      borderRadius: moderateScale(60),
+      backgroundColor: theme.inputBackground,
+      justifyContent: 'center',
+      alignItems: 'center',
+      alignSelf: 'center',
+      marginBottom: moderateScale(24),
+      borderWidth: 1,
+      borderColor: theme.borderColor,
+      overflow: 'hidden',
+    },
+    profileImage: {
+      width: '100%',
+      height: '100%',
+      resizeMode: 'cover',
+    },
+    imagePickerText: {
+      fontFamily: 'OpenSans-Regular',
+      color: theme.textColor,
+      fontSize: moderateScale(14),
+      textAlign: 'center',
+    },
+    imagePickerSubText: {
+      fontFamily: 'OpenSans-Regular',
+      color: theme.textColor,
+      fontSize: moderateScale(12),
+      marginTop: moderateScale(4),
+      opacity: 0.7,
     },
   });
 };

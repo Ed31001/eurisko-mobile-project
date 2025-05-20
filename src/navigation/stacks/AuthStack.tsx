@@ -4,12 +4,12 @@ import SignUpScreen from '../../screens/SignUpScreen';
 import LoginScreen from '../../screens/LoginScreen';
 import VerificationScreen from '../../screens/VerificationScreen';
 import ThemeToggle from '../../components/atoms/ThemeToggle';
-import { useTheme } from '../../context/ThemeContext';
+import { useThemeStore } from '../../store/useThemeStore';
 
 const Stack = createNativeStackNavigator();
 
 const AuthStack = () => {
-  const { theme } = useTheme();
+  const theme = useThemeStore((state) => state.theme);
 
   const renderThemeToggle = () => <ThemeToggle />;
 

@@ -11,7 +11,10 @@ const Button = ({ title, onPress }: ButtonProps) => {
   const styles = useButtonStyles();
 
   return (
-    <TouchableOpacity onPress={onPress} style={styles.button}>
+    <TouchableOpacity
+      style={styles.button}
+      onPress={onPress}
+    >
       <Text style={styles.buttonText}>{title}</Text>
     </TouchableOpacity>
   );
