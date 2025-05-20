@@ -34,7 +34,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   signUp: async ({ email, password, firstName, lastName }) => {
     set({ loading: true, error: null });
     try {
-      await authService.signUp({ email, password, firstName, lastName });
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('password', password);
+      formData.append('firstName', firstName);
+      formData.append('lastName', lastName);
+      await authService.signUp(formData);
       set({ email }); // Store email for verification
       return true;
     } catch (err: any) {

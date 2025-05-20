@@ -14,7 +14,7 @@ import { NavigationProp } from '../navigation/navigator/navigator';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary, CameraOptions, ImageLibraryOptions, MediaType } from 'react-native-image-picker';
 import Button from '../components/atoms/Button';
 import useSignUpScreenStyles from '../styles/SignUpScreenStyles';
 import { useAuthStore } from '../store/useAuthStore';
@@ -55,31 +55,62 @@ const SignUpScreen = () => {
     };
   }, []);
 
-const handleImagePick = async () => {
-  try {
-    const result = await launchImageLibrary({
-      mediaType: 'photo',
-      quality: 0.8,
-      maxWidth: 500,
-      maxHeight: 500,
-      selectionLimit: 1,
-      includeBase64: false,
-      presentationStyle: 'fullScreen',
-    });
+  const handleImagePick = async (type: 'camera' | 'gallery') => {
+    try {
+      const options: CameraOptions & ImageLibraryOptions = {
+        mediaType: 'photo' as MediaType,
+        quality: 0.8,
+        maxWidth: 500,
+        maxHeight: 500,
+        saveToPhotos: true,
+      };
 
-    if (!result.didCancel && result.assets && result.assets[0]) {
-      const asset = result.assets[0];
-      setProfileImage({
-        uri: asset.uri,
-        type: asset.type || 'image/jpeg',
-        name: asset.fileName || 'profile.jpg',
-      });
+      if (type === 'camera') {
+        const result = await launchCamera(options);
+        if (result.assets && result.assets[0]) {
+          setProfileImage({
+            uri: result.assets[0].uri,
+            type: result.assets[0].type || 'image/jpeg',
+            name: result.assets[0].fileName || 'photo.jpg',
+          });
+        }
+      } else {
+        const result = await launchImageLibrary(options);
+        if (result.assets && result.assets[0]) {
+          setProfileImage({
+            uri: result.assets[0].uri,
+            type: result.assets[0].type || 'image/jpeg',
+            name: result.assets[0].fileName || 'photo.jpg',
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Error picking image:', err);
+      Alert.alert('Error', 'Failed to pick image. Please try again.');
     }
-  } catch (err) {
-    console.error('Error picking image:', err);
-    Alert.alert('Error', 'Failed to pick image. Please try again.');
-  }
-};
+  };
+
+  const showImagePickerOptions = () => {
+      Alert.alert(
+        'Profile Picture',
+        'Choose an option',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: 'Take Photo',
+            onPress: () => handleImagePick('camera'),
+          },
+          {
+            text: 'Choose from Library',
+            onPress: () => handleImagePick('gallery'),
+          },
+        ],
+        { cancelable: true }
+      );
+  };
 
   const onSubmit = async (data: SignUpFormData) => {
     const success = await signUp({
@@ -121,7 +152,7 @@ const handleImagePick = async () => {
 
         <TouchableOpacity
           style={styles.imagePickerContainer}
-          onPress={handleImagePick}
+          onPress={showImagePickerOptions}
         >
           {profileImage ? (
             <Image
