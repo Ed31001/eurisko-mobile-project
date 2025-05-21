@@ -25,7 +25,7 @@ export type ProductsResponse = {
 };
 
 export const productService = {
-  getProducts: async (page = 1, limit = 10) => {
+  getProducts: async (page = 1, limit = 5) => {
     try {
       const response = await api.get<ProductsResponse>(`/products?page=${page}&limit=${limit}`);
       console.log('Products API Response:', JSON.stringify(response.data, null, 2));

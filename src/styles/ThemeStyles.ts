@@ -20,7 +20,7 @@ const ThemeStyles = {
     inputBackground: 'black',
     passwordButton: 'blue',
     invalidInput: 'red',
-    cardBackground: 'darkgray',
+    cardBackground: '#404040',
     headerBackground: 'darkblue',
   },
 };

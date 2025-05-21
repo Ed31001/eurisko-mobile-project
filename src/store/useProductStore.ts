@@ -6,9 +6,10 @@ type ProductState = {
   loading: boolean;
   error: string | null;
   currentPage: number;
-  hasNextPage: boolean;
+  totalPages: number;
   fetchProducts: () => Promise<void>;
-  loadMoreProducts: () => Promise<void>;
+  loadNextPage: () => Promise<void>;
+  loadPreviousPage: () => Promise<void>;
   refreshProducts: () => Promise<void>;
 };
 
@@ -17,16 +18,16 @@ export const useProductStore = create<ProductState>((set, get) => ({
   loading: false,
   error: null,
   currentPage: 1,
-  hasNextPage: false,
+  totalPages: 1,
 
   fetchProducts: async () => {
     set({ loading: true, error: null });
     try {
-      const response = await productService.getProducts(1);
+      const response = await productService.getProducts(1, 5);
       set({
         products: response.data,
         currentPage: response.pagination.currentPage,
-        hasNextPage: response.pagination.hasNextPage,
+        totalPages: response.pagination.totalPages,
       });
     } catch (err: any) {
       set({ error: err.message || 'Failed to fetch products' });
@@ -35,20 +36,39 @@ export const useProductStore = create<ProductState>((set, get) => ({
     }
   },
 
-  loadMoreProducts: async () => {
-    const { currentPage, loading, hasNextPage } = get();
-    if (loading || !hasNextPage){ return; }
+  loadNextPage: async () => {
+    const { currentPage, totalPages, loading } = get();
+    if (loading || currentPage >= totalPages){ return; }
 
     set({ loading: true });
     try {
-      const response = await productService.getProducts(currentPage + 1);
-      set((state) => ({
-        products: [...state.products, ...response.data],
+      const response = await productService.getProducts(currentPage + 1, 5);
+      set({
+        products: response.data,
         currentPage: response.pagination.currentPage,
-        hasNextPage: response.pagination.hasNextPage,
-      }));
+        totalPages: response.pagination.totalPages,
+      });
     } catch (err: any) {
-      set({ error: err.message || 'Failed to load more products' });
+      set({ error: err.message || 'Failed to load next page' });
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  loadPreviousPage: async () => {
+    const { currentPage, loading } = get();
+    if (loading || currentPage <= 1){ return; }
+
+    set({ loading: true });
+    try {
+      const response = await productService.getProducts(currentPage - 1, 5);
+      set({
+        products: response.data,
+        currentPage: response.pagination.currentPage,
+        totalPages: response.pagination.totalPages,
+      });
+    } catch (err: any) {
+      set({ error: err.message || 'Failed to load previous page' });
     } finally {
       set({ loading: false });
     }
@@ -57,11 +77,11 @@ export const useProductStore = create<ProductState>((set, get) => ({
   refreshProducts: async () => {
     set({ loading: true, error: null });
     try {
-      const response = await productService.getProducts(1);
+      const response = await productService.getProducts(1, 5);
       set({
         products: response.data,
         currentPage: response.pagination.currentPage,
-        hasNextPage: response.pagination.hasNextPage,
+        totalPages: response.pagination.totalPages,
       });
     } catch (err: any) {
       set({ error: err.message || 'Failed to refresh products' });
