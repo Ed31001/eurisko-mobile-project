@@ -6,10 +6,10 @@ const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
+    'Accept': '*/*',
   },
 });
 
-// Request interceptor for API calls
 api.interceptors.request.use(
   async (config) => {
     const state = useAuthStore.getState();
@@ -24,7 +24,6 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor for API calls
 api.interceptors.response.use(
   (response) => response,
   async (error) => {

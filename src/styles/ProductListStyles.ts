@@ -9,6 +9,11 @@ const styles = StyleSheet.create({
   listContent: {
     padding: moderateScale(16),
   },
+  footer: {
+    paddingVertical: moderateScale(20),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
 
 export default styles;
