@@ -4,6 +4,7 @@ import ProductListScreen from '../../screens/ProductListScreen';
 import ProductDetailsScreen from '../../screens/ProductDetailsScreen';
 import ThemeToggle from '../../components/atoms/ThemeToggle';
 import { useThemeStore } from '../../store/useThemeStore';
+import ProductListHeader from '../../components/molecules/ProductListHeader';
 
 const Stack = createNativeStackNavigator();
 
@@ -32,6 +33,7 @@ const ProductStack = () => {
         component={ProductListScreen}
         options={{
           title: 'Products',
+          headerLeft: ProductListHeader,
         }}
       />
       <Stack.Screen

@@ -19,6 +19,7 @@ const ProductList = () => {
     loadNextPage,
     loadPreviousPage,
     refreshProducts,
+    error,
   } = useProductStore();
 
   useEffect(() => {
@@ -68,6 +69,16 @@ const ProductList = () => {
       </TouchableOpacity>
     </View>
   );
+
+  if (error) {
+    return (
+      <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
+        <Text style={[styles.errorText, { color: theme.textColor }]}>
+          {error}. Pull down to retry.
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>

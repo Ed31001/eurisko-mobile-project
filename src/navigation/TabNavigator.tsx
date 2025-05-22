@@ -66,7 +66,7 @@ const TabNavigator = () => {
         name="Profile"
         component={EditProfileScreen}
         options={{
-          title: 'Edit Profile',
+          title: 'Profile',
           headerShown: true,
           tabBarIcon: ProfileTabIcon,
           headerLeft: HeaderLeft,

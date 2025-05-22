@@ -15,7 +15,6 @@ const useTabNavigatorStyles = () => {
     },
     headerStyle: {
       backgroundColor: theme.headerBackground,
-      height: moderateScale(56),
     },
     headerTitleStyle: {
       fontFamily: 'Roboto-Bold',
