@@ -17,7 +17,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginScreen = () => {
-  const { login, error, loading } = useAuthStore(); // Add loading
+  const { login, error, loading } = useAuthStore();
   const navigation = useNavigation<NavigationProp>();
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [isPortrait, setIsPortrait] = useState(true);
@@ -47,7 +47,6 @@ const LoginScreen = () => {
     if (!success) {
       Alert.alert('Login Failed', error || 'Please check your credentials and try again.');
     }
-    // No need for navigation here as the AppNavigator will handle it based on isLoggedIn
   };
 
   return (

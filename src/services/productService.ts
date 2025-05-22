@@ -1,28 +1,22 @@
-import api from '../api/axios';
+import { api } from '../api/axios';
 
-export type Product = {
+export interface Product {
   _id: string;
   title: string;
   description: string;
   price: number;
-  images: Array<{
-    url: string;
-    _id: string;
-  }>;
-};
+  images: Array<{ url: string }>;
+}
 
-export type ProductsResponse = {
+interface ProductsResponse {
   success: boolean;
   data: Product[];
   pagination: {
     currentPage: number;
     totalPages: number;
     hasNextPage: boolean;
-    hasPrevPage: boolean;
-    totalItems: number;
-    limit: number;
   };
-};
+}
 
 export const productService = {
   getProducts: async (page = 1, limit = 5) => {

@@ -26,7 +26,17 @@ const signUpSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters long'),
 });
 
-type SignUpFormData = z.infer<typeof signUpSchema>;
+interface SignUpFormData {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  profileImage?: {
+    uri: string;
+    type: string;
+    name: string;
+  };
+}
 
 const SignUpScreen = () => {
   const { signUp, setEmail, error, loading } = useAuthStore();
@@ -118,6 +128,7 @@ const SignUpScreen = () => {
       password: data.password,
       firstName: data.firstName,
       lastName: data.lastName,
+      profileImage: profileImage || undefined,
     });
 
     if (success) {

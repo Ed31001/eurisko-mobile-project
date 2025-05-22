@@ -4,7 +4,8 @@ export type RootStackParamList = {
   SignUp: undefined;
   Login: undefined;
   Verification: undefined;
-  ProductList: undefined;
+  Products: undefined;
+  Profile: undefined;
   ProductDetails: {
     title: string;
     description: string;
