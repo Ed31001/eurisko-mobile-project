@@ -1,9 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, Text, Image, TouchableOpacity, View, Dimensions, ActivityIndicator } from 'react-native';
+import {
+  ScrollView,
+  Text,
+  Image,
+  TouchableOpacity,
+  View,
+  Dimensions,
+  ActivityIndicator,
+  useWindowDimensions,
+  Alert,
+  PermissionsAndroid,
+  Linking,
+  Clipboard,
+} from 'react-native';
+import * as FileSystem from 'react-native-fs';
+import Swiper from 'react-native-swiper';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/navigator/navigator';
 import useProductDetailsScreenStyles from '../styles/ProductDetailsScreenStyles';
 import { useProductStore } from '../store/useProductStore';
+import { useThemeStore } from '../store/useThemeStore';
+import { moderateScale } from '../utils/responsive';
 
 type ProductDetailsScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetails'>;
 
@@ -11,8 +28,11 @@ const ProductDetailsScreen = () => {
   const route = useRoute<ProductDetailsScreenRouteProp>();
   const { id } = route.params;
   const { getProductById, selectedProduct, loading, error } = useProductStore();
+  const theme = useThemeStore((state) => state.theme);
   const styles = useProductDetailsScreenStyles();
   const [isPortrait, setIsPortrait] = useState(true);
+  const { width } = useWindowDimensions();
+  const [imageLoading, setImageLoading] = useState<boolean[]>([]);
 
   useEffect(() => {
     const onChange = ({ window }: { window: { width: number; height: number } }) => {
@@ -27,7 +47,186 @@ const ProductDetailsScreen = () => {
 
   useEffect(() => {
     getProductById(id);
-  }, [id, getProductById]); // Added getProductById to dependencies
+  }, [id, getProductById]);
+
+  useEffect(() => {
+    if (selectedProduct) {
+      setImageLoading(new Array(selectedProduct.images.length).fill(true));
+    }
+  }, [selectedProduct]);
+
+  const handleImageLoad = (index: number) => {
+    setImageLoading(prev => {
+      const newLoading = [...prev];
+      newLoading[index] = false;
+      return newLoading;
+    });
+  };
+
+  const requestStoragePermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'Storage Permission',
+          message: 'App needs access to storage to save images',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        }
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  };
+
+  const saveImage = async (imageUrl: string) => {
+    try {
+      const hasPermission = await requestStoragePermission();
+
+      if (!hasPermission) {
+        Alert.alert('Permission denied', 'Please grant storage permission to save images');
+        return;
+      }
+
+      const date = new Date();
+      const fileName = `product_${date.getTime()}.jpg`;
+      const path = `${FileSystem.PicturesDirectoryPath}/${fileName}`;
+
+      Alert.alert('Saving...', 'Please wait while we save your image');
+
+      const response = await FileSystem.downloadFile({
+        fromUrl: imageUrl,
+        toFile: path,
+        background: true,
+        discretionary: true,
+        progress: (res) => {
+          const progress = (res.bytesWritten / res.contentLength) * 100;
+          console.log(`Download progress: ${progress.toFixed(2)}%`);
+        },
+      }).promise;
+
+      if (response.statusCode === 200) {
+        // Trigger media scanner to show image in gallery
+        await FileSystem.scanFile(path);
+        Alert.alert('Success', 'Image saved to gallery!');
+      } else {
+        throw new Error('Download failed');
+      }
+    } catch (err) {
+      console.error('Save error:', err);
+      Alert.alert('Error', 'Failed to save image');
+    }
+  };
+
+  const handleLongPress = (imageUrl: string) => {
+    Alert.alert(
+      'Save Image',
+      'Would you like to save this image?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Save', onPress: () => saveImage(imageUrl) },
+      ]
+    );
+  };
+
+  const renderOwnerSection = () => {
+    if (!selectedProduct?.user) {
+      console.log('No user data available');
+      return null;
+    }
+
+    const { email } = selectedProduct.user;
+    // Use email prefix as fallback for missing name
+    const displayName = email.split('@')[0];
+    const initials = displayName.substring(0, 2).toUpperCase();
+
+    return (
+      <View style={styles.ownerContainer}>
+        <View style={styles.ownerImageContainer}>
+          <View style={styles.placeholderContainer}>
+            <Text style={styles.ownerInitials}>{initials}</Text>
+          </View>
+        </View>
+        <View style={styles.ownerInfo}>
+          <Text style={styles.ownerName}>{displayName}</Text>
+          <Text style={styles.ownerEmail}>{email}</Text>
+        </View>
+        <TouchableOpacity
+          style={styles.emailButton}
+          onPress={handleEmailPress}
+        >
+          <Text style={styles.emailIcon}>✉️</Text>
+          <Text style={styles.emailButtonText}>Contact</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  const handleEmailPress = async () => {
+    if (!selectedProduct?.user?.email) {
+      Alert.alert('Error', 'No email address available for the seller');
+      return;
+    }
+
+    const subject = encodeURIComponent(`Regarding your product: ${selectedProduct.title}`);
+    const body = encodeURIComponent(`Hi ${selectedProduct.user.firstName},\n\nI'm interested in your product "${selectedProduct.title}".`);
+
+    try {
+      // First try native email app
+      const mailtoUrl = `mailto:${selectedProduct.user.email}?subject=${subject}&body=${body}`;
+      const canOpenMailto = await Linking.canOpenURL(mailtoUrl);
+
+      if (canOpenMailto) {
+        await Linking.openURL(mailtoUrl);
+        return;
+      }
+
+      // Then try Outlook
+      const outlookUrl = `ms-outlook://compose?to=${encodeURIComponent(selectedProduct.user.email)}&subject=${subject}&body=${body}`;
+      const canOpenOutlook = await Linking.canOpenURL(outlookUrl);
+      console.log('Can open Outlook:', canOpenOutlook);
+
+      if (canOpenOutlook) {
+        await Linking.openURL(outlookUrl);
+        return;
+      }
+
+      // If no mail apps are available
+      Alert.alert(
+        'Copy Email',
+        `No email app found. The seller's email is: ${selectedProduct.user.email}`,
+        [
+          {
+            text: 'Copy Email',
+            onPress: () => {
+              Clipboard.setString(selectedProduct.user.email);
+              Alert.alert('Success', 'Email copied to clipboard');
+            },
+          },
+          { text: 'Cancel', style: 'cancel' },
+        ]
+      );
+    } catch (err) {
+      console.error('Email error:', err);
+      Alert.alert(
+        'Error',
+        'Could not handle email. Please try again.',
+        [
+          {
+            text: 'Copy Email',
+            onPress: () => {
+              Clipboard.setString(selectedProduct.user.email);
+              Alert.alert('Success', 'Email copied to clipboard');
+            },
+          },
+          { text: 'Cancel', style: 'cancel' },
+        ]
+      );
+    }
+  };
 
   if (loading) {
     return <ActivityIndicator size="large" style={styles.loader} />;
@@ -45,20 +244,84 @@ const ProductDetailsScreen = () => {
         isPortrait ? styles.scrollViewContentPortrait : styles.scrollViewContentLandscape,
       ]}
     >
-      <Image
-        source={{ uri: selectedProduct.images[0]?.url }}
-        style={styles.image}
-      />
-      <Text style={styles.title}>{selectedProduct.title}</Text>
-      <Text style={styles.description}>{selectedProduct.description}</Text>
-      <Text style={styles.price}>Price: ${selectedProduct.price}</Text>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Share</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Add to Cart</Text>
-        </TouchableOpacity>
+      <View
+        style={[
+          styles.swiperContainer,
+          !isPortrait && { width: width * 0.5 },
+        ]}
+      >
+        <Swiper
+          showsButtons
+          showsPagination
+          loop={false}
+          dotColor={theme.buttonText + '80'}
+          activeDotColor={theme.buttonText}
+          nextButton={<Text style={styles.swiperButton}>›</Text>}
+          prevButton={<Text style={styles.swiperButton}>‹</Text>}
+        >
+          {selectedProduct.images?.map((image, index) => (
+            <View key={index} style={styles.slide}>
+              <TouchableOpacity
+                activeOpacity={0.9}
+                onLongPress={() => handleLongPress(image.url)}
+                delayLongPress={500}
+                style={styles.touchableImage}
+              >
+                <Image
+                  source={{
+                    uri: image.url,
+                    headers: {
+                      Accept: 'image/*',
+                    },
+                  }}
+                  style={styles.image}
+                  onLoadStart={() => handleImageLoad(index)}
+                  onLoad={() => handleImageLoad(index)}
+                  onError={(e) => console.error('Image load error:', e.nativeEvent.error)}
+                />
+              </TouchableOpacity>
+              {imageLoading[index] && (
+                <ActivityIndicator
+                  size="large"
+                  color={theme.buttonBackground}
+                  style={styles.imageLoader}
+                />
+              )}
+            </View>
+          ))}
+        </Swiper>
+      </View>
+
+      <View style={[
+        styles.detailsContainer,
+        !isPortrait && { paddingBottom: moderateScale(20) },
+      ]}>
+        <Text style={styles.title}>{selectedProduct.title}</Text>
+        <Text style={styles.description}>{selectedProduct.description}</Text>
+        <Text style={styles.price}>Price: ${selectedProduct.price}</Text>
+
+        {renderOwnerSection()}
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              // Add share functionality
+              Alert.alert('Share', 'Share functionality coming soon');
+            }}
+          >
+            <Text style={styles.buttonText}>Share</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              // Add to cart functionality
+              Alert.alert('Cart', 'Add to cart functionality coming soon');
+            }}
+          >
+            <Text style={styles.buttonText}>Add to Cart</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );

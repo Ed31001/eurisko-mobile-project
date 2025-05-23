@@ -36,9 +36,10 @@ export interface ProductDetails {
     latitude: number;
   };
   user: {
-    id: string;
-    firstName: string;
-    lastName: string;
+    _id: string;
+    firstName?: string;
+    lastName?: string;
+    email: string;
     profileImage?: {
       url: string;
     };
@@ -118,11 +119,12 @@ export const productService = {
 
       // Transform image URLs to full URLs if needed
       if (response.data.data.images) {
-        response.data.data.images = response.data.data.images.map(img => ({
-          url: img.url.startsWith('http')
+        response.data.data.images = response.data.data.images.map(img => {
+          const url = img.url.startsWith('http')
             ? img.url
-            : `https://backend-practice.eurisko.me/${img.url.replace(/^\/+/, '')}`,
-        }));
+            : `https://backend-practice.eurisko.me/${img.url.replace(/^\/+/, '').replace(/^api\//, '')}`;
+          return { url };
+        });
       }
 
       console.log('Product details response:', response.data);
