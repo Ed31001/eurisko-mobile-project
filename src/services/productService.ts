@@ -9,6 +9,7 @@ export interface Product {
   location: {
     name: string;
     latitude: number;
+    longitude: number;
   };
 }
 
@@ -34,6 +35,7 @@ export interface ProductDetails {
   location: {
     name: string;
     latitude: number;
+    longitude: number;
   };
   user: {
     _id: string;

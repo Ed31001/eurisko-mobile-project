@@ -177,7 +177,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
 
   refreshProducts: async () => {
     const { searchQuery, sortOrder } = get();
-    set({ loading: true, error: null });
+    set({ loading: true, error: null }); // Reset error state
     try {
       let response;
       if (searchQuery) {
@@ -190,9 +190,13 @@ export const useProductStore = create<ProductState>((set, get) => ({
         products: response.data,
         currentPage: response.pagination.currentPage,
         totalPages: response.pagination.totalPages,
+        error: null, // Clear any existing error
       });
     } catch (err: any) {
-      set({ error: err.message || 'Failed to refresh products' });
+      set({
+        error: err.message || 'Failed to refresh products',
+        products: [], // Clear products on error
+      });
     } finally {
       set({ loading: false });
     }

@@ -177,8 +177,34 @@ const useProductDetailsScreenStyles = () => {
     },
     ownerEmail: {
       fontSize: moderateScale(14),
-      color: theme.textColor + '80',
+      color: theme.textColor,
       marginTop: moderateScale(2),
+    },
+    mapContainer: {
+      marginTop: moderateScale(24),
+      marginBottom: moderateScale(24),
+      borderRadius: moderateScale(8),
+      overflow: 'hidden',
+      backgroundColor: theme.cardBackground,
+    },
+    locationText: {
+      padding: moderateScale(16),
+      fontSize: moderateScale(16),
+      color: theme.textColor,
+      fontWeight: 'bold',
+    },
+    map: {
+      width: '100%',
+      height: moderateScale(200),
+    },
+    mapLoader: {
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: [{ translateX: -20 }, { translateY: -20 }],
+    },
+    hiddenMap: {
+      display: 'none',
     },
   });
 };

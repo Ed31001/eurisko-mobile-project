@@ -26,6 +26,14 @@ const ProductList = () => {
     fetchProducts();
   }, [fetchProducts]);
 
+  const handleRefresh = async () => {
+    try {
+      await refreshProducts();
+    } catch (err) {
+      console.error('Refresh error:', err);
+    }
+  };
+
   const getFullImageUrl = (relativeUrl: string) => {
     if (!relativeUrl){ return ''; }
     const cleanPath = relativeUrl
@@ -73,9 +81,26 @@ const ProductList = () => {
   if (error) {
     return (
       <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
-        <Text style={[styles.errorText, { color: theme.textColor }]}>
-          {error}. Pull down to retry.
-        </Text>
+        <FlatList
+          data={[]}
+          renderItem={() => null}
+          refreshControl={
+            <RefreshControl
+              refreshing={loading}
+              onRefresh={handleRefresh}
+              colors={[theme.buttonBackground]}
+              tintColor={theme.buttonBackground}
+            />
+          }
+          ListHeaderComponent={
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>
+                {error}. Pull down to retry.
+              </Text>
+            </View>
+          }
+          contentContainerStyle={styles.listContent}
+        />
       </View>
     );
   }
@@ -91,7 +116,7 @@ const ProductList = () => {
             <TouchableOpacity
               onPress={() =>
                 navigation.navigate('ProductDetails', {
-                  id: item._id, // Pass the ID instead of product details
+                  id: item._id,
                 })
               }
             >
@@ -108,7 +133,7 @@ const ProductList = () => {
         refreshControl={
           <RefreshControl
             refreshing={loading}
-            onRefresh={refreshProducts}
+            onRefresh={handleRefresh}
             colors={[theme.buttonBackground]}
             tintColor={theme.buttonBackground}
           />

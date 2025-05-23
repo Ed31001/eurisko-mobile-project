@@ -21,6 +21,7 @@ import useProductDetailsScreenStyles from '../styles/ProductDetailsScreenStyles'
 import { useProductStore } from '../store/useProductStore';
 import { useThemeStore } from '../store/useThemeStore';
 import { moderateScale } from '../utils/responsive';
+import MapView, { Marker } from 'react-native-maps';
 
 type ProductDetailsScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetails'>;
 
@@ -33,6 +34,8 @@ const ProductDetailsScreen = () => {
   const [isPortrait, setIsPortrait] = useState(true);
   const { width } = useWindowDimensions();
   const [imageLoading, setImageLoading] = useState<boolean[]>([]);
+  const [mapReady, setMapReady] = useState(false);
+  const [mapError] = useState<string | null>(null);
 
   useEffect(() => {
     const onChange = ({ window }: { window: { width: number; height: number } }) => {
@@ -228,6 +231,57 @@ const ProductDetailsScreen = () => {
     }
   };
 
+  const renderMap = () => {
+    if (!selectedProduct?.location) {
+      return null;
+    }
+
+    return (
+      <View style={styles.mapContainer}>
+        <Text style={styles.locationText}>{selectedProduct.location.name}</Text>
+        {!mapReady && (
+          <ActivityIndicator
+            size="large"
+            color={theme.buttonBackground}
+            style={styles.mapLoader}
+          />
+        )}
+        {mapError ? (
+          <Text style={styles.errorText}>Error loading map: {mapError}</Text>
+        ) : (
+          <MapView
+            style={[
+              styles.map,
+              !mapReady && styles.hiddenMap,
+            ]}
+            initialRegion={{
+              latitude: selectedProduct.location.latitude,
+              longitude: selectedProduct.location.longitude || selectedProduct.location.latitude,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            }}
+            scrollEnabled={false}
+            onMapReady={() => setMapReady(true)}
+            onMapLoaded={() => setMapReady(true)}
+            onRegionChangeComplete={() => {
+              if (!mapReady) {
+                setMapReady(true);
+              }
+            }}
+          >
+            <Marker
+              coordinate={{
+                latitude: selectedProduct.location.latitude,
+                longitude: selectedProduct.location.longitude || selectedProduct.location.latitude,
+              }}
+              title={selectedProduct.location.name}
+            />
+          </MapView>
+        )}
+      </View>
+    );
+  };
+
   if (loading) {
     return <ActivityIndicator size="large" style={styles.loader} />;
   }
@@ -301,6 +355,7 @@ const ProductDetailsScreen = () => {
         <Text style={styles.price}>Price: ${selectedProduct.price}</Text>
 
         {renderOwnerSection()}
+        {renderMap()}
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity

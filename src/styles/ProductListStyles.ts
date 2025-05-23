@@ -47,7 +47,14 @@ const styles = StyleSheet.create({
     color: 'red',
     textAlign: 'center',
     marginTop: moderateScale(20),
+    fontFamily: 'OpenSans-Regular',
   },
+  errorContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: moderateScale(20),
+    },
 });
 
 export default styles;
