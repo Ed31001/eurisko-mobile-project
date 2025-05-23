@@ -10,6 +10,7 @@ const ThemeStyles = {
     invalidInput: 'red',
     cardBackground: 'white',
     headerBackground: 'blue',
+    disabledButton: 'gray',
   },
   dark: {
     backgroundColor: 'black',
@@ -22,6 +23,7 @@ const ThemeStyles = {
     invalidInput: 'red',
     cardBackground: '#404040',
     headerBackground: 'darkblue',
+    disabledButton: 'gray',
   },
 };
 

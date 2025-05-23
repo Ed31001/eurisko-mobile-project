@@ -36,7 +36,6 @@ export const useProductStore = create<ProductState>((set, get) => ({
       const options = sortOrder ? { sortBy: 'price', order: sortOrder } : undefined;
       const response = await productService.getProducts(1, 5, options);
 
-      // Add default pagination if missing
       const pagination = response.pagination || {
         currentPage: 1,
         totalPages: 1,
@@ -125,9 +124,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
     set({ loading: true, error: null, searchQuery: trimmedQuery });
 
     try {
-      // Always execute the search, even with empty query
       const response = await productService.searchProducts(trimmedQuery, 1, 5);
-      console.log('Search response:', response);
 
       set({
         products: response.data,
@@ -177,7 +174,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
 
   refreshProducts: async () => {
     const { searchQuery, sortOrder } = get();
-    set({ loading: true, error: null }); // Reset error state
+    set({ loading: true, error: null });
     try {
       let response;
       if (searchQuery) {
@@ -190,12 +187,12 @@ export const useProductStore = create<ProductState>((set, get) => ({
         products: response.data,
         currentPage: response.pagination.currentPage,
         totalPages: response.pagination.totalPages,
-        error: null, // Clear any existing error
+        error: null,
       });
     } catch (err: any) {
       set({
         error: err.message || 'Failed to refresh products',
-        products: [], // Clear products on error
+        products: [],
       });
     } finally {
       set({ loading: false });

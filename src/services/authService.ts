@@ -51,16 +51,9 @@ export const authService = {
 
   verifyOtp: async (email: string, otp: string) => {
     try {
-      console.log('Verify OTP Request:', {
-        url: '/auth/verify-otp',
-        data: { email, otp },
-      });
-
       const response = await api.post('/auth/verify-otp', { email, otp });
-      console.log('Verify OTP Response:', JSON.stringify(response.data, null, 2));
       return response.data;
     } catch (error: any) {
-      console.log('Verify OTP Error:', JSON.stringify(error.response?.data, null, 2));
       throw error;
     }
   },
@@ -72,20 +65,13 @@ export const authService = {
 
   login: async (email: string, password: string, token_expires_in = '1y') => {
     try {
-      console.log('Login Request:', {
-        url: '/auth/login',
-        data: { email, password, token_expires_in },
-      });
-
       const response = await api.post('/auth/login', {
         email,
         password,
         token_expires_in,
       });
-      console.log('Login Response:', JSON.stringify(response.data, null, 2));
       return response.data;
     } catch (error: any) {
-      console.log('Login Error:', JSON.stringify(error.response?.data, null, 2));
       throw error;
     }
   },
@@ -105,8 +91,6 @@ export const authService = {
 
   updateProfile: async (formData: FormData) => {
     try {
-      console.log('Updating profile with form data');
-
       const response = await api.put('/user/profile', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -117,15 +101,12 @@ export const authService = {
         transformRequest: (data) => data,
       });
 
-      console.log('Profile update response:', response.data);
-
       if (!response.data.success) {
         throw new Error(response.data.error || 'Failed to update profile');
       }
 
       return response.data;
     } catch (error) {
-      console.error('Profile update error:', error);
       throw error;
     }
   },
@@ -133,10 +114,8 @@ export const authService = {
   getUserProfile: async () => {
     try {
       const response = await api.get('/user/profile');
-      console.log('Get profile response:', response.data);
       return response.data;
     } catch (error) {
-      console.error('Get profile error:', error);
       throw error;
     }
   },

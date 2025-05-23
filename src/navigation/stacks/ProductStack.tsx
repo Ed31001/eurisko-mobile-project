@@ -1,16 +1,20 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { ProductStackParamList } from '../navigator/navigator';
 import ProductListScreen from '../../screens/ProductListScreen';
 import ProductDetailsScreen from '../../screens/ProductDetailsScreen';
+import AddProductScreen from '../../screens/AddProductScreen';
 import ThemeToggle from '../../components/atoms/ThemeToggle';
 import { useThemeStore } from '../../store/useThemeStore';
 import ProductListHeader from '../../components/molecules/ProductListHeader';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<ProductStackParamList>();
+
+const HeaderLeft = () => <ProductListHeader />;
+const HeaderRight = () => <ThemeToggle />;
 
 const ProductStack = () => {
   const theme = useThemeStore((state) => state.theme);
-  const renderThemeToggle = () => <ThemeToggle />;
 
   return (
     <Stack.Navigator
@@ -25,7 +29,7 @@ const ProductStack = () => {
           fontSize: 18,
         },
         headerTitleAlign: 'center',
-        headerRight: renderThemeToggle,
+        headerRight: HeaderRight,
       }}
     >
       <Stack.Screen
@@ -33,7 +37,7 @@ const ProductStack = () => {
         component={ProductListScreen}
         options={{
           title: 'Products',
-          headerLeft: ProductListHeader,
+          headerLeft: HeaderLeft,
         }}
       />
       <Stack.Screen
@@ -41,6 +45,13 @@ const ProductStack = () => {
         component={ProductDetailsScreen}
         options={{
           title: 'Product Details',
+        }}
+      />
+      <Stack.Screen
+        name="AddProduct"
+        component={AddProductScreen}
+        options={{
+          title: 'Add Product',
         }}
       />
     </Stack.Navigator>

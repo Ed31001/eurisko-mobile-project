@@ -2,7 +2,6 @@ import axios from 'axios';
 import { API_URL } from '@env';
 import { useAuthStore } from '../store/useAuthStore';
 
-// Extend the InternalAxiosRequestConfig type
 declare module 'axios' {
   export interface InternalAxiosRequestConfig {
     retry?: number;
@@ -17,10 +16,9 @@ export const api = axios.create({
     'Pragma': 'no-cache',
     'Expires': '0',
   },
-  timeout: 10000, // 10 second timeout
+  timeout: 10000,
 });
 
-// Add retry logic
 api.interceptors.response.use(undefined, async (error) => {
   const { config, response } = error;
 
@@ -31,7 +29,6 @@ api.interceptors.response.use(undefined, async (error) => {
   config.retry -= 1;
 
   if (response?.status === 521) {
-    // Wait 2 seconds before retrying
     await new Promise(resolve => setTimeout(resolve, 2000));
     return api(config);
   }
@@ -39,15 +36,13 @@ api.interceptors.response.use(undefined, async (error) => {
   return Promise.reject(error);
 });
 
-// Add retry configuration to all requests
 api.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().accessToken;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    // Add retry configuration
-    config.retry = 3; // Number of retries
+    config.retry = 3;
     return config;
   },
   (error) => {

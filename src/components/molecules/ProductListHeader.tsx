@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { View, TouchableOpacity, Text, TextInput, Modal } from 'react-native';
 import { useThemeStore } from '../../store/useThemeStore';
 import { useProductStore } from '../../store/useProductStore';
+import { useNavigation } from '@react-navigation/native';
+import { ProductStackNavigationProp } from '../../navigation/navigator/navigator';
 import styles from '../../styles/ProductListHeaderStyles';
 
 const ProductListHeader = () => {
+  const navigation = useNavigation<ProductStackNavigationProp>();
   const theme = useThemeStore((state) => state.theme);
   const { searchProducts, sortProducts } = useProductStore();
   const [showSearchModal, setShowSearchModal] = useState(false);
@@ -12,10 +15,9 @@ const ProductListHeader = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleSearch = () => {
-    // Always execute search, even with empty query
     searchProducts(searchQuery.trim());
     setShowSearchModal(false);
-    setSearchQuery(''); // Clear the search input
+    setSearchQuery('');
   };
 
   const handleSort = (order: 'asc' | 'desc') => {
@@ -37,6 +39,13 @@ const ProductListHeader = () => {
         style={[styles.button, { backgroundColor: theme.buttonBackground }]}
       >
         <Text style={[styles.buttonText, { color: theme.buttonText }]}>↕️</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => navigation.navigate('AddProduct')}
+        style={[styles.button, { backgroundColor: theme.buttonBackground }]}
+      >
+        <Text style={[styles.buttonText, { color: theme.buttonText }]}>➕</Text>
       </TouchableOpacity>
 
       {/* Search Modal */}

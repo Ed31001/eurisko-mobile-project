@@ -52,28 +52,24 @@ export interface ProductDetails {
 export const productService = {
   searchProducts: async (query: string, page = 1, limit = 5, sortOrder?: 'asc' | 'desc') => {
     try {
-      // Always fetch products, regardless of query
       const response = await api.get<ProductsResponse>(
         '/products?page=1&limit=100'
       );
 
       let filteredData = response.data.data || [];
 
-      // Filter only if there's a query
       if (query) {
         filteredData = filteredData.filter(product =>
           product.title.toLowerCase().includes(query.toLowerCase())
         );
       }
 
-      // Sort if needed
       if (sortOrder) {
         filteredData.sort((a, b) => {
           return sortOrder === 'asc' ? a.price - b.price : b.price - a.price;
         });
       }
 
-      // Calculate proper pagination
       const totalItems = filteredData.length;
       const startIndex = (page - 1) * limit;
       const endIndex = startIndex + limit;
@@ -102,24 +98,20 @@ export const productService = {
       if (options?.sortBy && options?.order) {
         url += `&sortBy=${options.sortBy}&order=${options.order}`;
       }
-      console.log('Fetching products:', url);
       const response = await api.get<ProductsResponse>(url);
       return response.data;
     } catch (error) {
-      console.error('Error fetching products:', error);
       throw error;
     }
   },
 
   getProductById: async (id: string) => {
     try {
-      console.log('Fetching product details for ID:', id);
       const response = await api.get<{
         success: boolean;
         data: ProductDetails;
       }>(`/products/${id}`);
 
-      // Transform image URLs to full URLs if needed
       if (response.data.data.images) {
         response.data.data.images = response.data.data.images.map(img => {
           const url = img.url.startsWith('http')
@@ -129,10 +121,46 @@ export const productService = {
         });
       }
 
-      console.log('Product details response:', response.data);
       return response.data;
     } catch (error) {
-      console.error('Error fetching product details:', error);
+      throw error;
+    }
+  },
+
+  addProduct: async (formData: FormData) => {
+    try {
+      const response = await api.post('/products', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error adding product:', error);
+      throw error;
+    }
+  },
+
+  deleteProduct: async (id: string) => {
+    try {
+      const response = await api.delete(`/products/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      throw error;
+    }
+  },
+
+  updateProduct: async (id: string, formData: FormData) => {
+    try {
+      const response = await api.put(`/products/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error updating product:', error);
       throw error;
     }
   },

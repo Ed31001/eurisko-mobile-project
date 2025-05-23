@@ -3,7 +3,7 @@ import { FlatList, View, TouchableOpacity, RefreshControl, Text } from 'react-na
 import ProductItem from '../molecules/ProductItem';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '../../navigation/navigator/navigator';
-import styles from '../../styles/ProductListStyles';
+import { useProductListStyles } from '../../styles/ProductListStyles';
 import { useThemeStore } from '../../store/useThemeStore';
 import { useProductStore } from '../../store/useProductStore';
 
@@ -21,6 +21,8 @@ const ProductList = () => {
     refreshProducts,
     error,
   } = useProductStore();
+
+  const styles = useProductListStyles();
 
   useEffect(() => {
     fetchProducts();

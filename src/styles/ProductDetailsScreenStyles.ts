@@ -23,9 +23,8 @@ const useProductDetailsScreenStyles = () => {
     swiperContainer: {
       backgroundColor: theme.cardBackground,
       aspectRatio: 1,
-      // Adjust width based on orientation
       width: '100%',
-      flexShrink: 0, // Prevent swiper from shrinking in landscape
+      flexShrink: 0,
     },
     slide: {
       flex: 1,
@@ -62,7 +61,7 @@ const useProductDetailsScreenStyles = () => {
     },
     detailsContainer: {
       padding: moderateScale(16),
-      flex: 1, // Allow content to take remaining space
+      flex: 1,
     },
     title: {
       fontFamily: 'Poppins-SemiBold',
@@ -205,6 +204,30 @@ const useProductDetailsScreenStyles = () => {
     },
     hiddenMap: {
       display: 'none',
+    },
+    ownerActionsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: moderateScale(16),
+    },
+    actionButton: {
+      flex: 1,
+      height: moderateScale(40),
+      borderRadius: moderateScale(8),
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginHorizontal: moderateScale(8),
+    },
+    editButton: {
+      backgroundColor: theme.buttonBackground,
+    },
+    deleteButton: {
+      backgroundColor: theme.invalidInput,
+    },
+    actionButtonText: {
+      color: theme.buttonText,
+      fontSize: moderateScale(16),
+      fontWeight: 'bold',
     },
   });
 };

@@ -22,13 +22,16 @@ import { useProductStore } from '../store/useProductStore';
 import { useThemeStore } from '../store/useThemeStore';
 import { moderateScale } from '../utils/responsive';
 import MapView, { Marker } from 'react-native-maps';
+import { useAuthStore } from '../store/useAuthStore';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { productService } from '../services/productService';
 
 type ProductDetailsScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetails'>;
 
 const ProductDetailsScreen = () => {
   const route = useRoute<ProductDetailsScreenRouteProp>();
   const { id } = route.params;
-  const { getProductById, selectedProduct, loading, error } = useProductStore();
+  const { getProductById, selectedProduct, loading, error, refreshProducts } = useProductStore();
   const theme = useThemeStore((state) => state.theme);
   const styles = useProductDetailsScreenStyles();
   const [isPortrait, setIsPortrait] = useState(true);
@@ -36,6 +39,8 @@ const ProductDetailsScreen = () => {
   const [imageLoading, setImageLoading] = useState<boolean[]>([]);
   const [mapReady, setMapReady] = useState(false);
   const [mapError] = useState<string | null>(null);
+  const { user } = useAuthStore();
+  const navigation = useNavigation<NavigationProp>();
 
   useEffect(() => {
     const onChange = ({ window }: { window: { width: number; height: number } }) => {
@@ -112,7 +117,6 @@ const ProductDetailsScreen = () => {
       }).promise;
 
       if (response.statusCode === 200) {
-        // Trigger media scanner to show image in gallery
         await FileSystem.scanFile(path);
         Alert.alert('Success', 'Image saved to gallery!');
       } else {
@@ -137,12 +141,10 @@ const ProductDetailsScreen = () => {
 
   const renderOwnerSection = () => {
     if (!selectedProduct?.user) {
-      console.log('No user data available');
       return null;
     }
 
     const { email } = selectedProduct.user;
-    // Use email prefix as fallback for missing name
     const displayName = email.split('@')[0];
     const initials = displayName.substring(0, 2).toUpperCase();
 
@@ -175,10 +177,9 @@ const ProductDetailsScreen = () => {
     }
 
     const subject = encodeURIComponent(`Regarding your product: ${selectedProduct.title}`);
-    const body = encodeURIComponent(`Hi ${selectedProduct.user.firstName},\n\nI'm interested in your product "${selectedProduct.title}".`);
+    const body = encodeURIComponent(`Hi,\n\nI'm interested in your product "${selectedProduct.title}".`);
 
     try {
-      // First try native email app
       const mailtoUrl = `mailto:${selectedProduct.user.email}?subject=${subject}&body=${body}`;
       const canOpenMailto = await Linking.canOpenURL(mailtoUrl);
 
@@ -187,17 +188,14 @@ const ProductDetailsScreen = () => {
         return;
       }
 
-      // Then try Outlook
       const outlookUrl = `ms-outlook://compose?to=${encodeURIComponent(selectedProduct.user.email)}&subject=${subject}&body=${body}`;
       const canOpenOutlook = await Linking.canOpenURL(outlookUrl);
-      console.log('Can open Outlook:', canOpenOutlook);
 
       if (canOpenOutlook) {
         await Linking.openURL(outlookUrl);
         return;
       }
 
-      // If no mail apps are available
       Alert.alert(
         'Copy Email',
         `No email app found. The seller's email is: ${selectedProduct.user.email}`,
@@ -282,6 +280,63 @@ const ProductDetailsScreen = () => {
     );
   };
 
+  const isOwner = user?.id === selectedProduct?.user?._id;
+
+  const handleEdit = () => {
+    navigation.navigate('EditProduct', {
+      product: selectedProduct,
+    });
+  };
+
+  const handleDelete = () => {
+    Alert.alert(
+      'Delete Product',
+      'Are you sure you want to delete this product?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await productService.deleteProduct(selectedProduct._id);
+              await refreshProducts();
+              Alert.alert('Success', 'Product deleted successfully');
+              navigation.goBack();
+            } catch (err) {
+              console.error('Delete error:', err);
+              Alert.alert('Error', 'Failed to delete product');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const renderOwnerActions = () => {
+    if (!isOwner){ return null; }
+
+    return (
+      <View style={styles.ownerActionsContainer}>
+        <TouchableOpacity
+          style={[styles.actionButton, styles.editButton]}
+          onPress={handleEdit}
+        >
+          <Text style={styles.actionButtonText}>Edit</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.actionButton, styles.deleteButton]}
+          onPress={handleDelete}
+        >
+          <Text style={styles.actionButtonText}>Delete</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   if (loading) {
     return <ActivityIndicator size="large" style={styles.loader} />;
   }
@@ -354,14 +409,10 @@ const ProductDetailsScreen = () => {
         <Text style={styles.description}>{selectedProduct.description}</Text>
         <Text style={styles.price}>Price: ${selectedProduct.price}</Text>
 
-        {renderOwnerSection()}
-        {renderMap()}
-
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-              // Add share functionality
               Alert.alert('Share', 'Share functionality coming soon');
             }}
           >
@@ -370,13 +421,16 @@ const ProductDetailsScreen = () => {
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
-              // Add to cart functionality
               Alert.alert('Cart', 'Add to cart functionality coming soon');
             }}
           >
             <Text style={styles.buttonText}>Add to Cart</Text>
           </TouchableOpacity>
         </View>
+
+        {renderOwnerSection()}
+        {renderMap()}
+        {renderOwnerActions()}
       </View>
     </ScrollView>
   );
