@@ -91,10 +91,7 @@ const ProductList = () => {
             <TouchableOpacity
               onPress={() =>
                 navigation.navigate('ProductDetails', {
-                  title: item.title,
-                  description: item.description,
-                  imageUrl: imageUrl,
-                  price: item.price,
+                  id: item._id, // Pass the ID instead of product details
                 })
               }
             >

@@ -42,6 +42,12 @@ const styles = StyleSheet.create({
   paginationText: {
     fontSize: moderateScale(14),
   },
+  errorText: {
+    fontSize: moderateScale(16),
+    color: 'red',
+    textAlign: 'center',
+    marginTop: moderateScale(20),
+  },
 });
 
 export default styles;

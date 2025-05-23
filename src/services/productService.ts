@@ -1,5 +1,51 @@
 import { api } from '../api/axios';
 
+export interface Product {
+  _id: string;
+  title: string;
+  price: number;
+  images: Array<{ url: string }>;
+  description: string;
+  location: {
+    name: string;
+    latitude: number;
+  };
+}
+
+export interface ProductsResponse {
+  success: boolean;
+  data: Product[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+    totalItems: number;
+    limit: number;
+  };
+}
+
+export interface ProductDetails {
+  _id: string;
+  title: string;
+  price: number;
+  description: string;
+  images: Array<{ url: string }>;
+  location: {
+    name: string;
+    latitude: number;
+  };
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    profileImage?: {
+      url: string;
+    };
+  };
+  updatedAt: string;
+}
+
 export const productService = {
   searchProducts: async (query: string, page = 1, limit = 5, sortOrder?: 'asc' | 'desc') => {
     try {
@@ -58,6 +104,31 @@ export const productService = {
       return response.data;
     } catch (error) {
       console.error('Error fetching products:', error);
+      throw error;
+    }
+  },
+
+  getProductById: async (id: string) => {
+    try {
+      console.log('Fetching product details for ID:', id);
+      const response = await api.get<{
+        success: boolean;
+        data: ProductDetails;
+      }>(`/products/${id}`);
+
+      // Transform image URLs to full URLs if needed
+      if (response.data.data.images) {
+        response.data.data.images = response.data.data.images.map(img => ({
+          url: img.url.startsWith('http')
+            ? img.url
+            : `https://backend-practice.eurisko.me/${img.url.replace(/^\/+/, '')}`,
+        }));
+      }
+
+      console.log('Product details response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching product details:', error);
       throw error;
     }
   },

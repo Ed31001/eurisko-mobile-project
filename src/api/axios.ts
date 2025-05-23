@@ -2,6 +2,13 @@ import axios from 'axios';
 import { API_URL } from '@env';
 import { useAuthStore } from '../store/useAuthStore';
 
+// Extend the InternalAxiosRequestConfig type
+declare module 'axios' {
+  export interface InternalAxiosRequestConfig {
+    retry?: number;
+  }
+}
+
 export const api = axios.create({
   baseURL: API_URL,
   headers: {

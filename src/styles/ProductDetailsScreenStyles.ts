@@ -6,6 +6,17 @@ const useProductDetailsScreenStyles = () => {
   const theme = useThemeStore((state) => state.theme);
 
   return StyleSheet.create({
+    errorText: {
+      fontSize: 16,
+      color: 'red',
+      textAlign: 'center',
+      margin: 20,
+    },
+    loader: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
     scrollView: {
       flex: 1,
     },

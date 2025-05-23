@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { productService, Product } from '../services/productService';
+import { productService, Product, ProductDetails } from '../services/productService';
 
 type ProductState = {
   products: Product[];
@@ -8,13 +8,15 @@ type ProductState = {
   currentPage: number;
   totalPages: number;
   searchQuery: string;
-  sortOrder: 'asc' | 'desc' | null;
+  sortOrder: 'asc' | 'desc' | undefined;
+  selectedProduct: ProductDetails | null;
   fetchProducts: () => Promise<void>;
   loadNextPage: () => Promise<void>;
   loadPreviousPage: () => Promise<void>;
   refreshProducts: () => Promise<void>;
   searchProducts: (query: string) => Promise<void>;
   sortProducts: (order: 'asc' | 'desc') => Promise<void>;
+  getProductById: (id: string) => Promise<void>;
 };
 
 export const useProductStore = create<ProductState>((set, get) => ({
@@ -24,7 +26,8 @@ export const useProductStore = create<ProductState>((set, get) => ({
   currentPage: 1,
   totalPages: 1,
   searchQuery: '',
-  sortOrder: null,
+  sortOrder: undefined,
+  selectedProduct: null,
 
   fetchProducts: async () => {
     const { sortOrder } = get();
@@ -32,10 +35,21 @@ export const useProductStore = create<ProductState>((set, get) => ({
     try {
       const options = sortOrder ? { sortBy: 'price', order: sortOrder } : undefined;
       const response = await productService.getProducts(1, 5, options);
+
+      // Add default pagination if missing
+      const pagination = response.pagination || {
+        currentPage: 1,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPrevPage: false,
+        totalItems: response.data.length,
+        limit: 5,
+      };
+
       set({
         products: response.data,
-        currentPage: response.pagination.currentPage,
-        totalPages: response.pagination.totalPages,
+        currentPage: pagination.currentPage,
+        totalPages: pagination.totalPages,
       });
     } catch (err: any) {
       set({ error: err.message || 'Failed to fetch products' });
@@ -179,6 +193,22 @@ export const useProductStore = create<ProductState>((set, get) => ({
       });
     } catch (err: any) {
       set({ error: err.message || 'Failed to refresh products' });
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  getProductById: async (id: string) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await productService.getProductById(id);
+      if (response.success) {
+        set({ selectedProduct: response.data });
+      } else {
+        throw new Error('Failed to fetch product details');
+      }
+    } catch (err: any) {
+      set({ error: err.message || 'Failed to fetch product details' });
     } finally {
       set({ loading: false });
     }
