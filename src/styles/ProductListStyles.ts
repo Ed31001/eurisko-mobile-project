@@ -60,5 +60,8 @@ export const useProductListStyles = () => {
       alignItems: 'center',
       padding: moderateScale(20),
     },
+    skeletonContainer: {
+      padding: moderateScale(16),
+    },
   });
 };

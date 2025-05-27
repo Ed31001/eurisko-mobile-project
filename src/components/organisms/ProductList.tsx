@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { FlatList, View, TouchableOpacity, RefreshControl, Text } from 'react-native';
 import ProductItem from '../molecules/ProductItem';
+import SkeletonItem from '../atoms/SkeletonItem';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '../../navigation/navigator/navigator';
 import { useProductListStyles } from '../../styles/ProductListStyles';
@@ -79,6 +80,28 @@ const ProductList = () => {
       </TouchableOpacity>
     </View>
   );
+
+  const renderSkeletonLoading = () => (
+    <View style={styles.container}>
+      {[...Array(6)].map((_, index) => (
+        <SkeletonItem key={index} />
+      ))}
+    </View>
+  );
+
+  if (loading && !products.length) {
+    return (
+      <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
+        <FlatList
+          data={[]}
+          renderItem={() => null}
+          ListHeaderComponent={renderPaginationControls}
+          ListFooterComponent={renderSkeletonLoading}
+          contentContainerStyle={styles.listContent}
+        />
+      </View>
+    );
+  }
 
   if (error) {
     return (

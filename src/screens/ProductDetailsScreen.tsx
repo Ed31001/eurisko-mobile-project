@@ -23,8 +23,10 @@ import { useThemeStore } from '../store/useThemeStore';
 import { moderateScale } from '../utils/responsive';
 import MapView, { Marker } from 'react-native-maps';
 import { useAuthStore } from '../store/useAuthStore';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { productService } from '../services/productService';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ProductStackParamList } from '../navigation/navigator/navigator';
 
 type ProductDetailsScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetails'>;
 
@@ -40,7 +42,7 @@ const ProductDetailsScreen = () => {
   const [mapReady, setMapReady] = useState(false);
   const [mapError] = useState<string | null>(null);
   const { user } = useAuthStore();
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation<NativeStackNavigationProp<ProductStackParamList>>();
 
   useEffect(() => {
     const onChange = ({ window }: { window: { width: number; height: number } }) => {
@@ -283,12 +285,15 @@ const ProductDetailsScreen = () => {
   const isOwner = user?.id === selectedProduct?.user?._id;
 
   const handleEdit = () => {
+    if (!selectedProduct){ return; }
     navigation.navigate('EditProduct', {
       product: selectedProduct,
     });
   };
 
   const handleDelete = () => {
+    if (!selectedProduct){ return; }
+
     Alert.alert(
       'Delete Product',
       'Are you sure you want to delete this product?',
