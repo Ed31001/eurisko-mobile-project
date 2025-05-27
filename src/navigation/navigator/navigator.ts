@@ -1,4 +1,5 @@
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ProductDetails } from '../../services/productService';
 
 export type RootStackParamList = {
   SignUp: undefined;

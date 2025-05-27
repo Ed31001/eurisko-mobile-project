@@ -80,7 +80,7 @@ const useAddProductScreenStyles = () => {
       paddingTop: moderateScale(12),
       marginBottom: moderateScale(16),
       backgroundColor: theme.inputBackground,
-      color: 'theme.textColor',
+      color: theme.textColor,
       textAlignVertical: 'top',
     },
     errorInput: {

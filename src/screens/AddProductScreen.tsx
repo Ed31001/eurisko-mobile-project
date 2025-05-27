@@ -13,7 +13,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import MapView, { Marker, MapPressEvent } from 'react-native-maps';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary, PhotoQuality } from 'react-native-image-picker';
 import useAddProductScreenStyles from '../styles/AddProductScreenStyles';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '../navigation/navigator/navigator';
@@ -63,7 +63,7 @@ const AddProductScreen = () => {
 
     const options = {
       mediaType: 'photo' as const,
-      quality: 0.8,
+      quality: 0.8 as PhotoQuality,
       maxWidth: 500,
       maxHeight: 500,
     };
