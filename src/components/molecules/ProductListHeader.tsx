@@ -4,11 +4,12 @@ import { useThemeStore } from '../../store/useThemeStore';
 import { useProductStore } from '../../store/useProductStore';
 import { useNavigation } from '@react-navigation/native';
 import { ProductStackNavigationProp } from '../../navigation/navigator/navigator';
-import styles from '../../styles/ProductListHeaderStyles';
+import { useProductListHeaderStyles } from '../../styles/ProductListHeaderStyles';
 
 const ProductListHeader = () => {
   const navigation = useNavigation<ProductStackNavigationProp>();
   const theme = useThemeStore((state) => state.theme);
+  const styles = useProductListHeaderStyles();
   const { searchProducts, sortProducts } = useProductStore();
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [showSortModal, setShowSortModal] = useState(false);

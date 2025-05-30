@@ -21,6 +21,7 @@ export type ProductStackParamList = {
   EditProduct: {
     product: ProductDetails;
   };
+  Cart: undefined;
 };
 
 export type NavigationProp = NativeStackNavigationProp<RootStackParamList>;

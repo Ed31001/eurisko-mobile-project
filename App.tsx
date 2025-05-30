@@ -6,6 +6,7 @@ import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from './src/store/useAuthStore';
 import { useThemeStore } from './src/store/useThemeStore';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const AppNavigator = () => {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
@@ -25,16 +26,21 @@ const ThemedApp = () => {
   );
 };
 
-function App(): React.JSX.Element {
+const App = () => {
   return (
-    <NavigationContainer>
-      <ThemedApp />
-    </NavigationContainer>
+    <GestureHandlerRootView style={styles.rootView}>
+      <NavigationContainer>
+        <ThemedApp />
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  rootView: {
     flex: 1,
   },
 });

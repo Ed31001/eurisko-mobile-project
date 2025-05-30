@@ -27,6 +27,7 @@ import { useNavigation } from '@react-navigation/native';
 import { productService } from '../services/productService';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ProductStackParamList } from '../navigation/navigator/navigator';
+import { useCartStore } from '../store/useCartStore';
 
 type ProductDetailsScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetails'>;
 
@@ -43,6 +44,7 @@ const ProductDetailsScreen = () => {
   const [mapError] = useState<string | null>(null);
   const { user } = useAuthStore();
   const navigation = useNavigation<NativeStackNavigationProp<ProductStackParamList>>();
+  const { addToCart } = useCartStore();
 
   useEffect(() => {
     const onChange = ({ window }: { window: { width: number; height: number } }) => {
@@ -342,6 +344,13 @@ const ProductDetailsScreen = () => {
     );
   };
 
+  const handleAddToCart = () => {
+    if (selectedProduct) {
+      addToCart(selectedProduct);
+      Alert.alert('Success', 'Product added to cart');
+    }
+  };
+
   if (loading) {
     return <ActivityIndicator size="large" style={styles.loader} />;
   }
@@ -425,9 +434,7 @@ const ProductDetailsScreen = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => {
-              Alert.alert('Cart', 'Add to cart functionality coming soon');
-            }}
+            onPress={handleAddToCart}
           >
             <Text style={styles.buttonText}>Add to Cart</Text>
           </TouchableOpacity>
