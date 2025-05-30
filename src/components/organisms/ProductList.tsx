@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { FlatList, View, TouchableOpacity, RefreshControl, Text } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { FlatList, View, TouchableOpacity, RefreshControl, Text, Animated } from 'react-native';
 import ProductItem from '../molecules/ProductItem';
 import SkeletonItem from '../atoms/SkeletonItem';
 import { useNavigation } from '@react-navigation/native';
@@ -7,6 +7,13 @@ import { NavigationProp } from '../../navigation/navigator/navigator';
 import { useProductListStyles } from '../../styles/ProductListStyles';
 import { useThemeStore } from '../../store/useThemeStore';
 import { useProductStore } from '../../store/useProductStore';
+
+type Product = {
+  _id: string;
+  title: string;
+  price: number;
+  images: Array<{ url: string }>;
+};
 
 const ProductList = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -89,6 +96,42 @@ const ProductList = () => {
     </View>
   );
 
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (products.length > 0) {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [products, fadeAnim]);
+
+  const renderItem = ({ item, index }: { item: Product; index: number }) => {
+    const imageUrl = getFullImageUrl(item.images[0]?.url || '');
+    return (
+      <Animated.View
+        style={{
+          opacity: fadeAnim,
+          transform: [{
+            translateY: fadeAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [50 * (index + 1), 0],
+            }),
+          }],
+        }}
+      >
+        <ProductItem
+          title={item.title}
+          price={item.price}
+          imageUrl={imageUrl}
+          onPress={() => navigation.navigate('ProductDetails', { id: item._id })}
+        />
+      </Animated.View>
+    );
+  };
+
   if (loading && !products.length) {
     return (
       <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
@@ -135,24 +178,7 @@ const ProductList = () => {
       <FlatList
         data={products}
         keyExtractor={(item) => item._id}
-        renderItem={({ item }) => {
-          const imageUrl = getFullImageUrl(item.images[0]?.url || '');
-          return (
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate('ProductDetails', {
-                  id: item._id,
-                })
-              }
-            >
-              <ProductItem
-                title={item.title}
-                price={item.price}
-                imageUrl={imageUrl}
-              />
-            </TouchableOpacity>
-          );
-        }}
+        renderItem={renderItem}
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={renderPaginationControls}
         refreshControl={
