@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import { useThemeStore } from '../store/useThemeStore';
 import { moderateScale } from '../utils/responsive';
 
-const useEditProductScreenStyles = () => {
+const useProductFormScreenStyles = () => {
   const theme = useThemeStore((state) => state.theme);
 
   return StyleSheet.create({
@@ -12,6 +12,7 @@ const useEditProductScreenStyles = () => {
     },
     content: {
       padding: moderateScale(16),
+      paddingBottom: moderateScale(32),
     },
     imagesContainer: {
       flexDirection: 'row',
@@ -19,77 +20,74 @@ const useEditProductScreenStyles = () => {
       marginBottom: moderateScale(16),
     },
     imageContainer: {
-      width: moderateScale(100),
-      height: moderateScale(100),
-      margin: moderateScale(4),
-      borderRadius: moderateScale(8),
-      overflow: 'hidden',
       position: 'relative',
+      marginRight: moderateScale(8),
+      marginBottom: moderateScale(8),
     },
     image: {
-      width: '100%',
-      height: '100%',
-      resizeMode: 'cover',
+      width: moderateScale(80),
+      height: moderateScale(80),
+      borderRadius: moderateScale(8),
+      backgroundColor: theme.inputBackground,
     },
     removeImageButton: {
       position: 'absolute',
-      top: moderateScale(4),
-      right: moderateScale(4),
-      backgroundColor: 'rgba(0,0,0,0.5)',
-      borderRadius: moderateScale(12),
-      width: moderateScale(24),
-      height: moderateScale(24),
-      justifyContent: 'center',
+      top: -8,
+      right: -8,
+      backgroundColor: theme.invalidInput,
+      borderRadius: 12,
+      width: 24,
+      height: 24,
       alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1,
     },
     removeImageText: {
-      color: 'white',
-      fontSize: moderateScale(16),
+      color: '#fff',
+      fontSize: 18,
+      fontWeight: 'bold',
     },
     addImageButton: {
-      width: moderateScale(100),
-      height: moderateScale(100),
-      margin: moderateScale(4),
+      width: moderateScale(80),
+      height: moderateScale(80),
       borderRadius: moderateScale(8),
-      borderWidth: 2,
-      borderColor: theme.buttonBackground,
-      borderStyle: 'dashed',
-      justifyContent: 'center',
+      backgroundColor: theme.inputBackground,
       alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: theme.buttonBackground,
     },
     addImageText: {
-      fontSize: moderateScale(24),
+      fontSize: 32,
       color: theme.buttonBackground,
+      fontWeight: 'bold',
     },
     input: {
-      height: moderateScale(50),
-      borderColor: theme.borderColor,
-      borderWidth: 1,
-      borderRadius: moderateScale(8),
-      paddingHorizontal: moderateScale(12),
-      marginBottom: moderateScale(16),
       backgroundColor: theme.inputBackground,
       color: theme.textColor,
+      borderRadius: 8,
+      padding: moderateScale(12),
+      marginBottom: moderateScale(12),
+      fontSize: moderateScale(16),
     },
     textArea: {
-      height: moderateScale(100),
-      borderColor: theme.borderColor,
-      borderWidth: 1,
-      borderRadius: moderateScale(8),
-      paddingHorizontal: moderateScale(12),
-      paddingTop: moderateScale(12),
-      marginBottom: moderateScale(16),
       backgroundColor: theme.inputBackground,
       color: theme.textColor,
+      borderRadius: 8,
+      padding: moderateScale(12),
+      marginBottom: moderateScale(12),
+      fontSize: moderateScale(16),
+      minHeight: moderateScale(80),
       textAlignVertical: 'top',
     },
     errorInput: {
+      borderWidth: 1,
       borderColor: theme.invalidInput,
     },
     errorText: {
       color: theme.invalidInput,
-      fontSize: moderateScale(12),
       marginBottom: moderateScale(8),
+      fontSize: moderateScale(14),
     },
     locationContainer: {
       marginBottom: moderateScale(16),
@@ -99,20 +97,21 @@ const useEditProductScreenStyles = () => {
     },
     map: {
       width: '100%',
-      height: moderateScale(200),
-      borderRadius: moderateScale(8),
+      height: moderateScale(150),
+      borderRadius: 8,
+      marginBottom: moderateScale(8),
     },
     locationText: {
-      marginTop: moderateScale(8),
-      fontSize: moderateScale(14),
       color: theme.textColor,
+      fontSize: moderateScale(14),
+      marginBottom: moderateScale(8),
     },
     submitButton: {
       backgroundColor: theme.buttonBackground,
-      height: moderateScale(50),
-      borderRadius: moderateScale(8),
-      justifyContent: 'center',
+      borderRadius: 8,
+      paddingVertical: moderateScale(14),
       alignItems: 'center',
+      marginTop: moderateScale(8),
     },
     submitButtonText: {
       color: theme.buttonText,
@@ -120,9 +119,9 @@ const useEditProductScreenStyles = () => {
       fontWeight: 'bold',
     },
     disabledButton: {
-      opacity: 0.7,
+      opacity: 0.6,
     },
   });
 };
 
-export default useEditProductScreenStyles;
+export default useProductFormScreenStyles;

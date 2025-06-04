@@ -229,6 +229,20 @@ const useProductDetailsScreenStyles = () => {
       fontSize: moderateScale(16),
       fontWeight: 'bold',
     },
+    errorContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 24,
+    },
+    retryButton: {
+      minWidth: 120,
+      paddingVertical: 12,
+      borderRadius: 8,
+      backgroundColor: theme.buttonBackground,
+      alignItems: 'center',
+      marginTop: 12,
+    },
   });
 };
 

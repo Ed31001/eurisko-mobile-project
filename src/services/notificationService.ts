@@ -37,11 +37,18 @@ class NotificationService {
     );
   };
 
-  sendLocalNotification = (productId: string, title: string) => {
+  sendLocalNotification = (
+    productId: string,
+    productTitle: string,
+    options?: { type?: 'add' | 'edit' }
+  ) => {
+    const isEdit = options?.type === 'edit';
     PushNotification.localNotification({
       channelId: 'product-channel',
-      title: 'New Product Added',
-      message: `You've successfully added: ${title}`,
+      title: isEdit ? 'Product Updated' : 'New Product Added',
+      message: isEdit
+        ? `You've successfully updated: ${productTitle}`
+        : `You've successfully added: ${productTitle}`,
       playSound: true,
       soundName: 'default',
       data: { productId },

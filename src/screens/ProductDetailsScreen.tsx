@@ -368,7 +368,17 @@ const ProductDetailsScreen = () => {
   }
 
   if (error || !selectedProduct) {
-    return <Text style={styles.errorText}>{error || 'Product not found'}</Text>;
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{error || 'Product not found'}</Text>
+        <TouchableOpacity
+          style={styles.retryButton}
+          onPress={() => getProductById(id)}
+        >
+          <Text style={styles.buttonText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
   }
 
   return (

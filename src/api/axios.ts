@@ -22,6 +22,25 @@ export const api = axios.create({
 api.interceptors.response.use(undefined, async (error) => {
   const { config, response } = error;
 
+  // --- Automatic token refresh on 401 ---
+  if (response?.status === 401 && !config._retry) {
+    config._retry = true;
+    const refreshed = await useAuthStore.getState().refreshAccessToken?.();
+    if (refreshed) {
+      // Update the Authorization header with the new token
+      const token = useAuthStore.getState().accessToken;
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return api(config);
+    } else {
+      // Optionally, trigger logout here if needed
+      useAuthStore.getState().logout?.();
+      return Promise.reject(error);
+    }
+  }
+
+  // --- Existing retry logic for 521 ---
   if (!config || !config.retry) {
     return Promise.reject(error);
   }

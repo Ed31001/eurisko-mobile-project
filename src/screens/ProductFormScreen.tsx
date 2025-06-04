@@ -1,5 +1,4 @@
-import 'react-native-get-random-values';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   ScrollView,
@@ -8,19 +7,19 @@ import {
   Text,
   Image,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import MapView, { Marker, MapPressEvent } from 'react-native-maps';
 import { launchCamera, launchImageLibrary, PhotoQuality } from 'react-native-image-picker';
-import useAddProductScreenStyles from '../styles/AddProductScreenStyles';
-import { useNavigation } from '@react-navigation/native';
-import { NavigationProp } from '../navigation/navigator/navigator';
-import { productService } from '../services/productService';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import useProductFormScreenStyles from '../styles/ProductFormScreenStyles';
+import { productService, ProductDetails } from '../services/productService';
 import notificationService from '../services/notificationService';
 
-const addProductSchema = z.object({
+const productSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
   price: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
@@ -28,22 +27,35 @@ const addProductSchema = z.object({
   }),
 });
 
-type AddProductFormData = z.infer<typeof addProductSchema>;
+type ProductFormData = z.infer<typeof productSchema>;
 
-const AddProductScreen = () => {
-  const navigation = useNavigation<NavigationProp>();
-  const styles = useAddProductScreenStyles();
+const ProductFormScreen = () => {
+  const navigation = useNavigation();
+  const route = useRoute<any>();
+  const styles = useProductFormScreenStyles();
+
+  const editing = !!route?.params?.product;
+  const product: ProductDetails | undefined = route?.params?.product;
+
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<any[]>([]);
   const [location, setLocation] = useState<{
     name: string;
     latitude: number;
     longitude: number;
-  } | null>(null);
-  const [searchText, setSearchText] = useState('');
+  } | null>(
+    product
+      ? {
+          name: product.location.name,
+          latitude: product.location.latitude,
+          longitude: product.location.longitude,
+        }
+      : null
+  );
+  const [searchText, setSearchText] = useState(product?.location.name || '');
   const [mapRegion] = useState({
-    latitude: 33.8938,
-    longitude: 35.5018,
+    latitude: product?.location.latitude || 33.8938,
+    longitude: product?.location.longitude || 35.5018,
     latitudeDelta: 0.01,
     longitudeDelta: 0.01,
   });
@@ -52,27 +64,46 @@ const AddProductScreen = () => {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<AddProductFormData>({
-    resolver: zodResolver(addProductSchema),
+  } = useForm<ProductFormData>({
+    resolver: zodResolver(productSchema),
+    defaultValues: editing
+      ? {
+          title: product?.title || '',
+          description: product?.description || '',
+          price: product?.price?.toString() || '',
+        }
+      : undefined,
   });
+
+  useEffect(() => {
+    if (editing && product?.images) {
+      const existingImages = product.images.map((img: { url: string }) => ({
+        uri: img.url.startsWith('http')
+          ? img.url
+          : `https://backend-practice.eurisko.me/${img.url.replace(/^\/+/, '').replace(/^api\//, '')}`,
+        type: 'image/jpeg',
+        name: 'existing-image.jpg',
+      }));
+      setImages(existingImages);
+    }
+  }, [editing, product]);
 
   const handleImagePick = async (type: 'camera' | 'gallery') => {
     if (images.length >= 5) {
       Alert.alert('Limit Reached', 'Maximum 5 images allowed');
       return;
     }
-
     const options = {
       mediaType: 'photo' as const,
       quality: 0.8 as PhotoQuality,
       maxWidth: 500,
       maxHeight: 500,
     };
-
     try {
-      const result = type === 'camera'
-        ? await launchCamera(options)
-        : await launchImageLibrary(options);
+      const result =
+        type === 'camera'
+          ? await launchCamera(options)
+          : await launchImageLibrary(options);
 
       if (result.assets && result.assets[0]) {
         const newImage = {
@@ -90,7 +121,7 @@ const AddProductScreen = () => {
 
   const showImagePickerOptions = () => {
     Alert.alert(
-      'Add Product Image',
+      editing ? 'Edit Product Image' : 'Add Product Image',
       'Choose an option',
       [
         { text: 'Cancel', style: 'cancel' },
@@ -102,44 +133,6 @@ const AddProductScreen = () => {
 
   const removeImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const onSubmit = async (data: AddProductFormData) => {
-    if (!location) {
-      Alert.alert('Error', 'Please select a location');
-      return;
-    }
-
-    if (images.length === 0) {
-      Alert.alert('Error', 'Please add at least one image');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append('title', data.title);
-      formData.append('description', data.description);
-      formData.append('price', data.price);
-      formData.append('location', JSON.stringify(location));
-
-      images.forEach((image) => {
-        formData.append('images', image);
-      });
-
-      const newProductResponse = await productService.addProduct(formData);
-      const product = newProductResponse.data; // <-- extract the product object
-
-      notificationService.sendLocalNotification(product._id, product.title);
-      Alert.alert('Success', 'Product added successfully', [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
-    } catch (err) {
-      console.error('Add product error:', err);
-      Alert.alert('Error', 'Failed to add product');
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleMapPress = (event: MapPressEvent) => {
@@ -158,6 +151,48 @@ const AddProductScreen = () => {
         ...location,
         name: text.trim() || 'Selected Location',
       });
+    }
+  };
+
+  const onSubmit = async (data: ProductFormData) => {
+    if (!location) {
+      Alert.alert('Error', 'Please select a location');
+      return;
+    }
+    if (images.length === 0) {
+      Alert.alert('Error', 'Please add at least one image');
+      return;
+    }
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append('title', data.title);
+      formData.append('description', data.description);
+      formData.append('price', data.price);
+      formData.append('location', JSON.stringify(location));
+      images.forEach((image) => {
+        formData.append('images', image);
+      });
+
+      if (editing && product) {
+        await productService.updateProduct(product._id, formData);
+        notificationService.sendLocalNotification(product._id, data.title, { type: 'edit' }); // Notify on edit
+        Alert.alert('Success', 'Product updated successfully', [
+          { text: 'OK', onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        const newProductResponse = await productService.addProduct(formData);
+        const newProduct = newProductResponse.data;
+        notificationService.sendLocalNotification(newProduct._id, newProduct.title, { type: 'add' }); // Notify on add
+        Alert.alert('Success', 'Product added successfully', [
+          { text: 'OK', onPress: () => navigation.goBack() },
+        ]);
+      }
+    } catch (err) {
+      console.error('Product form error:', err);
+      Alert.alert('Error', editing ? 'Failed to update product' : 'Failed to add product');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -283,13 +318,17 @@ const AddProductScreen = () => {
           onPress={handleSubmit(onSubmit)}
           disabled={loading}
         >
-          <Text style={styles.submitButtonText}>
-            {loading ? 'Adding Product...' : 'Add Product'}
-          </Text>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.submitButtonText}>
+              {editing ? 'Update Product' : 'Add Product'}
+            </Text>
+          )}
         </TouchableOpacity>
       </ScrollView>
     </View>
   );
 };
 
-export default AddProductScreen;
+export default ProductFormScreen;
