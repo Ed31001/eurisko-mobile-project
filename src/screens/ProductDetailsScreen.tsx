@@ -12,6 +12,7 @@ import {
   PermissionsAndroid,
   Linking,
   Clipboard,
+  Share,
 } from 'react-native';
 import * as FileSystem from 'react-native-fs';
 import Swiper from 'react-native-swiper';
@@ -351,6 +352,17 @@ const ProductDetailsScreen = () => {
     }
   };
 
+  const handleShare = () => {
+    if (!selectedProduct){ return; }
+    const url = `myproject://products/${selectedProduct._id}`;
+    const message = `Check out this product: ${selectedProduct.title}\n\n${selectedProduct.description}\nPrice: $${selectedProduct.price}\n\nOpen in app: ${url}`;
+    Share.share({
+      message,
+      url,
+      title: selectedProduct.title,
+    });
+  };
+
   if (loading) {
     return <ActivityIndicator size="large" style={styles.loader} />;
   }
@@ -426,9 +438,7 @@ const ProductDetailsScreen = () => {
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => {
-              Alert.alert('Share', 'Share functionality coming soon');
-            }}
+            onPress={handleShare}
           >
             <Text style={styles.buttonText}>Share</Text>
           </TouchableOpacity>

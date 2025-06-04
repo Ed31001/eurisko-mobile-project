@@ -7,6 +7,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ProductListScreen from '../../screens/ProductListScreen';
 import ProductDetailsScreen from '../../screens/ProductDetailsScreen';
 import AddProductScreen from '../../screens/AddProductScreen';
+import EditProductScreen from '../../screens/EditProductScreen';
 import CartScreen from '../../screens/CartScreen';
 import ThemeToggle from '../../components/atoms/ThemeToggle';
 import ProductListHeader from '../../components/molecules/ProductListHeader';
@@ -83,6 +84,13 @@ const ProductStack = () => {
         component={AddProductScreen}
         options={{
           title: 'Add Product',
+        }}
+      />
+      <Stack.Screen
+        name="EditProduct"
+        component={EditProductScreen}
+        options={{
+          title: 'Edit Product',
         }}
       />
       <Stack.Screen

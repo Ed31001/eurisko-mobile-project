@@ -18,6 +18,7 @@ import useAddProductScreenStyles from '../styles/AddProductScreenStyles';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '../navigation/navigator/navigator';
 import { productService } from '../services/productService';
+import notificationService from '../services/notificationService';
 
 const addProductSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -126,7 +127,10 @@ const AddProductScreen = () => {
         formData.append('images', image);
       });
 
-      await productService.addProduct(formData);
+      const newProductResponse = await productService.addProduct(formData);
+      const product = newProductResponse.data; // <-- extract the product object
+
+      notificationService.sendLocalNotification(product._id, product.title);
       Alert.alert('Success', 'Product added successfully', [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
