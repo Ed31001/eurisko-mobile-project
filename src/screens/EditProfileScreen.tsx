@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -26,15 +26,15 @@ const EditProfileScreen = () => {
   const [imageLoading, setImageLoading] = useState(false);
   const styles = useEditProfileScreenStyles();
 
-  const getFullImageUrl = (relativeUrl: string) => {
+  const getFullImageUrl = useCallback((relativeUrl: string) => {
     if (!relativeUrl){ return ''; }
     const cleanPath = relativeUrl
       .replace(/^\/+/, '')
       .replace(/^api\//, '');
     return `https://backend-practice.eurisko.me/${cleanPath}`;
-  };
+  }, []);
 
-  const handleImagePick = async (type: 'camera' | 'gallery') => {
+  const handleImagePick = useCallback(async (type: 'camera' | 'gallery') => {
     const options: CameraOptions & ImageLibraryOptions = {
       mediaType: 'photo' as const,
       quality: 0.8,
@@ -58,9 +58,9 @@ const EditProfileScreen = () => {
       console.error('Error picking image:', err);
       Alert.alert('Error', 'Failed to pick image');
     }
-  };
+  }, []);
 
-  const showImagePickerOptions = () => {
+  const showImagePickerOptions = useCallback(() => {
     Alert.alert(
       'Update Profile Picture',
       'Choose an option',
@@ -71,9 +71,9 @@ const EditProfileScreen = () => {
       ],
       { cancelable: true }
     );
-  };
+  }, [handleImagePick]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     if (!firstName.trim() || !lastName.trim()) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
@@ -109,7 +109,12 @@ const EditProfileScreen = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [firstName, lastName, profileImage, updateProfile, getUserProfile]);
+
+  const initials = useMemo(
+    () => `${firstName[0] || ''}${lastName[0] || ''}`,
+    [firstName, lastName]
+  );
 
   return (
     <ScrollView style={styles.scrollView}>
@@ -156,7 +161,7 @@ const EditProfileScreen = () => {
           ) : (
             <View style={styles.placeholderContainer}>
               <Text style={styles.placeholderText}>
-                {firstName[0]}{lastName[0]}
+                {initials}
               </Text>
             </View>
           )}

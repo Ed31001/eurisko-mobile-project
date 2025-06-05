@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback, useMemo } from 'react';
 import { FlatList, View, TouchableOpacity, RefreshControl, Text, Animated } from 'react-native';
 import ProductItem from '../molecules/ProductItem';
 import SkeletonItem from '../atoms/SkeletonItem';
@@ -36,23 +36,23 @@ const ProductList = () => {
     fetchProducts();
   }, [fetchProducts]);
 
-  const handleRefresh = async () => {
+  const handleRefresh = useCallback(async () => {
     try {
       await refreshProducts();
     } catch (err) {
       console.error('Refresh error:', err);
     }
-  };
+  }, [refreshProducts]);
 
-  const getFullImageUrl = (relativeUrl: string) => {
+  const getFullImageUrl = useCallback((relativeUrl: string) => {
     if (!relativeUrl){ return ''; }
     const cleanPath = relativeUrl
       .replace(/^\/+/, '')
       .replace(/^api\//, '');
     return `https://backend-practice.eurisko.me/${cleanPath}`;
-  };
+  }, []);
 
-  const renderPaginationControls = () => (
+  const renderPaginationControls = useCallback(() => (
     <View style={styles.paginationControls}>
       <TouchableOpacity
         style={[
@@ -86,15 +86,22 @@ const ProductList = () => {
         ]}>Next</Text>
       </TouchableOpacity>
     </View>
-  );
+  ), [
+    styles,
+    currentPage,
+    totalPages,
+    loadPreviousPage,
+    loadNextPage,
+    theme.textColor,
+  ]);
 
-  const renderSkeletonLoading = () => (
+  const renderSkeletonLoading = useCallback(() => (
     <View style={styles.container}>
       {[...Array(6)].map((_, index) => (
         <SkeletonItem key={index} />
       ))}
     </View>
-  );
+  ), [styles.container]);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -108,29 +115,34 @@ const ProductList = () => {
     }
   }, [products, fadeAnim]);
 
-  const renderItem = ({ item, index }: { item: Product; index: number }) => {
-    const imageUrl = getFullImageUrl(item.images[0]?.url || '');
-    return (
-      <Animated.View
-        style={{
-          opacity: fadeAnim,
-          transform: [{
-            translateY: fadeAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [50 * (index + 1), 0],
-            }),
-          }],
-        }}
-      >
-        <ProductItem
-          title={item.title}
-          price={item.price}
-          imageUrl={imageUrl}
-          onPress={() => navigation.navigate('ProductDetails', { id: item._id })}
-        />
-      </Animated.View>
-    );
-  };
+  const renderItem = useCallback(
+    ({ item, index }: { item: Product; index: number }) => {
+      const imageUrl = getFullImageUrl(item.images[0]?.url || '');
+      return (
+        <Animated.View
+          style={{
+            opacity: fadeAnim,
+            transform: [{
+              translateY: fadeAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [50 * (index + 1), 0],
+              }),
+            }],
+          }}
+        >
+          <ProductItem
+            title={item.title}
+            price={item.price}
+            imageUrl={imageUrl}
+            onPress={() => navigation.navigate('ProductDetails', { id: item._id })}
+          />
+        </Animated.View>
+      );
+    },
+    [fadeAnim, getFullImageUrl, navigation]
+  );
+
+  const listContentStyle = useMemo(() => styles.listContent, [styles.listContent]);
 
   if (loading && !products.length) {
     return (
@@ -140,7 +152,7 @@ const ProductList = () => {
           renderItem={() => null}
           ListHeaderComponent={renderPaginationControls}
           ListFooterComponent={renderSkeletonLoading}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={listContentStyle}
         />
       </View>
     );
@@ -167,7 +179,7 @@ const ProductList = () => {
               </Text>
             </View>
           }
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={listContentStyle}
         />
       </View>
     );
@@ -179,7 +191,7 @@ const ProductList = () => {
         data={products}
         keyExtractor={(item) => item._id}
         renderItem={renderItem}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={listContentStyle}
         ListHeaderComponent={renderPaginationControls}
         refreshControl={
           <RefreshControl

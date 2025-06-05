@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   ScrollView,
   Text,
@@ -16,18 +16,16 @@ import {
 } from 'react-native';
 import * as FileSystem from 'react-native-fs';
 import Swiper from 'react-native-swiper';
-import { RouteProp, useRoute } from '@react-navigation/native';
-import { RootStackParamList } from '../navigation/navigator/navigator';
+import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
+import { RootStackParamList, ProductStackParamList } from '../navigation/navigator/navigator';
 import useProductDetailsScreenStyles from '../styles/ProductDetailsScreenStyles';
 import { useProductStore } from '../store/useProductStore';
 import { useThemeStore } from '../store/useThemeStore';
 import { moderateScale } from '../utils/responsive';
 import MapView, { Marker } from 'react-native-maps';
 import { useAuthStore } from '../store/useAuthStore';
-import { useNavigation } from '@react-navigation/native';
-import { productService } from '../services/productService';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ProductStackParamList } from '../navigation/navigator/navigator';
+import { productService } from '../services/productService';
 import { useCartStore } from '../store/useCartStore';
 
 type ProductDetailsScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetails'>;
@@ -68,15 +66,15 @@ const ProductDetailsScreen = () => {
     }
   }, [selectedProduct]);
 
-  const handleImageLoad = (index: number) => {
+  const handleImageLoad = useCallback((index: number) => {
     setImageLoading(prev => {
       const newLoading = [...prev];
       newLoading[index] = false;
       return newLoading;
     });
-  };
+  }, []);
 
-  const requestStoragePermission = async () => {
+  const requestStoragePermission = useCallback(async () => {
     try {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
@@ -93,9 +91,9 @@ const ProductDetailsScreen = () => {
       console.error(err);
       return false;
     }
-  };
+  }, []);
 
-  const saveImage = async (imageUrl: string) => {
+  const saveImage = useCallback(async (imageUrl: string) => {
     try {
       const hasPermission = await requestStoragePermission();
 
@@ -131,9 +129,9 @@ const ProductDetailsScreen = () => {
       console.error('Save error:', err);
       Alert.alert('Error', 'Failed to save image');
     }
-  };
+  }, [requestStoragePermission]);
 
-  const handleLongPress = (imageUrl: string) => {
+  const handleLongPress = useCallback((imageUrl: string) => {
     Alert.alert(
       'Save Image',
       'Would you like to save this image?',
@@ -142,40 +140,9 @@ const ProductDetailsScreen = () => {
         { text: 'Save', onPress: () => saveImage(imageUrl) },
       ]
     );
-  };
+  }, [saveImage]);
 
-  const renderOwnerSection = () => {
-    if (!selectedProduct?.user) {
-      return null;
-    }
-
-    const { email } = selectedProduct.user;
-    const displayName = email.split('@')[0];
-    const initials = displayName.substring(0, 2).toUpperCase();
-
-    return (
-      <View style={styles.ownerContainer}>
-        <View style={styles.ownerImageContainer}>
-          <View style={styles.placeholderContainer}>
-            <Text style={styles.ownerInitials}>{initials}</Text>
-          </View>
-        </View>
-        <View style={styles.ownerInfo}>
-          <Text style={styles.ownerName}>{displayName}</Text>
-          <Text style={styles.ownerEmail}>{email}</Text>
-        </View>
-        <TouchableOpacity
-          style={styles.emailButton}
-          onPress={handleEmailPress}
-        >
-          <Text style={styles.emailIcon}>✉️</Text>
-          <Text style={styles.emailButtonText}>Contact</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  };
-
-  const handleEmailPress = async () => {
+  const handleEmailPress = useCallback(async () => {
     if (!selectedProduct?.user?.email) {
       Alert.alert('Error', 'No email address available for the seller');
       return;
@@ -232,9 +199,39 @@ const ProductDetailsScreen = () => {
         ]
       );
     }
-  };
+  }, [selectedProduct]);
 
-  const renderMap = () => {
+  const renderOwnerSection = useCallback(() => {
+    if (!selectedProduct?.user) {
+      return null;
+    }
+    const { email } = selectedProduct.user;
+    const displayName = email.split('@')[0];
+    const initials = displayName.substring(0, 2).toUpperCase();
+
+    return (
+      <View style={styles.ownerContainer}>
+        <View style={styles.ownerImageContainer}>
+          <View style={styles.placeholderContainer}>
+            <Text style={styles.ownerInitials}>{initials}</Text>
+          </View>
+        </View>
+        <View style={styles.ownerInfo}>
+          <Text style={styles.ownerName}>{displayName}</Text>
+          <Text style={styles.ownerEmail}>{email}</Text>
+        </View>
+        <TouchableOpacity
+          style={styles.emailButton}
+          onPress={handleEmailPress}
+        >
+          <Text style={styles.emailIcon}>✉️</Text>
+          <Text style={styles.emailButtonText}>Contact</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }, [selectedProduct, styles, handleEmailPress]);
+
+  const renderMap = useCallback(() => {
     if (!selectedProduct?.location) {
       return null;
     }
@@ -283,18 +280,21 @@ const ProductDetailsScreen = () => {
         )}
       </View>
     );
-  };
+  }, [selectedProduct, styles, theme.buttonBackground, mapReady, mapError]);
 
-  const isOwner = user?.id === selectedProduct?.user?._id;
+  const isOwner = useMemo(
+    () => user?.id === selectedProduct?.user?._id,
+    [user, selectedProduct]
+  );
 
-  const handleEdit = () => {
+  const handleEdit = useCallback(() => {
     if (!selectedProduct){ return; }
     navigation.navigate('EditProduct', {
       product: selectedProduct,
     });
-  };
+  }, [navigation, selectedProduct]);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     if (!selectedProduct){ return; }
 
     Alert.alert(
@@ -322,9 +322,9 @@ const ProductDetailsScreen = () => {
         },
       ]
     );
-  };
+  }, [selectedProduct, refreshProducts, navigation]);
 
-  const renderOwnerActions = () => {
+  const renderOwnerActions = useCallback(() => {
     if (!isOwner){ return null; }
 
     return (
@@ -343,16 +343,16 @@ const ProductDetailsScreen = () => {
         </TouchableOpacity>
       </View>
     );
-  };
+  }, [isOwner, styles, handleEdit, handleDelete]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = useCallback(() => {
     if (selectedProduct) {
       addToCart(selectedProduct);
       Alert.alert('Success', 'Product added to cart');
     }
-  };
+  }, [selectedProduct, addToCart]);
 
-  const handleShare = () => {
+  const handleShare = useCallback(() => {
     if (!selectedProduct){ return; }
     const url = `myproject://products/${selectedProduct._id}`;
     const message = `Check out this product: ${selectedProduct.title}\n\n${selectedProduct.description}\nPrice: $${selectedProduct.price}\n\nOpen in app: ${url}`;
@@ -361,7 +361,7 @@ const ProductDetailsScreen = () => {
       url,
       title: selectedProduct.title,
     });
-  };
+  }, [selectedProduct]);
 
   if (loading) {
     return <ActivityIndicator size="large" style={styles.loader} />;

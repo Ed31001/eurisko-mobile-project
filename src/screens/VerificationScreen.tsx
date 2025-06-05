@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, TextInput, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '../navigation/navigator/navigator';
@@ -12,12 +12,11 @@ const VerificationScreen = () => {
   const { verifyOtp, resendOtp, error, loading } = useAuthStore();
   const [otp, setOtp] = useState('');
 
-  const handleVerify = async () => {
+  const handleVerify = useCallback(async () => {
     if (otp.length !== 6) {
       Alert.alert('Invalid Code', 'Please enter the 6-digit code.');
       return;
     }
-
     const success = await verifyOtp(otp);
     if (success) {
       Alert.alert('Success', 'Email verified successfully', [
@@ -29,16 +28,16 @@ const VerificationScreen = () => {
     } else {
       Alert.alert('Invalid Code', error || 'Please enter the correct code.');
     }
-  };
+  }, [otp, verifyOtp, error, navigation]);
 
-  const handleResendOtp = async () => {
+  const handleResendOtp = useCallback(async () => {
     const success = await resendOtp();
     if (success) {
       Alert.alert('Success', 'Verification code resent successfully');
     } else {
       Alert.alert('Error', error || 'Failed to resend verification code');
     }
-  };
+  }, [resendOtp, error]);
 
   return (
     <View style={styles.container}>

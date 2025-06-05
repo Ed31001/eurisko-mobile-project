@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   View,
   ScrollView,
@@ -53,12 +53,17 @@ const ProductFormScreen = () => {
       : null
   );
   const [searchText, setSearchText] = useState(product?.location.name || '');
-  const [mapRegion] = useState({
-    latitude: product?.location.latitude || 33.8938,
-    longitude: product?.location.longitude || 35.5018,
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
-  });
+
+  // Memoize mapRegion so it doesn't recalculate on every render
+  const mapRegion = useMemo(
+    () => ({
+      latitude: product?.location.latitude || 33.8938,
+      longitude: product?.location.longitude || 35.5018,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    }),
+    [product]
+  );
 
   const {
     control,
@@ -75,51 +80,62 @@ const ProductFormScreen = () => {
       : undefined,
   });
 
-  useEffect(() => {
+  // Memoize existingImages to avoid recalculating in useEffect
+  const existingImages = useMemo(() => {
     if (editing && product?.images) {
-      const existingImages = product.images.map((img: { url: string }) => ({
+      return product.images.map((img: { url: string }) => ({
         uri: img.url.startsWith('http')
           ? img.url
           : `https://backend-practice.eurisko.me/${img.url.replace(/^\/+/, '').replace(/^api\//, '')}`,
         type: 'image/jpeg',
         name: 'existing-image.jpg',
       }));
-      setImages(existingImages);
     }
+    return [];
   }, [editing, product]);
 
-  const handleImagePick = async (type: 'camera' | 'gallery') => {
-    if (images.length >= 5) {
-      Alert.alert('Limit Reached', 'Maximum 5 images allowed');
-      return;
+  useEffect(() => {
+    if (editing && product?.images) {
+      setImages(existingImages);
     }
-    const options = {
-      mediaType: 'photo' as const,
-      quality: 0.8 as PhotoQuality,
-      maxWidth: 500,
-      maxHeight: 500,
-    };
-    try {
-      const result =
-        type === 'camera'
-          ? await launchCamera(options)
-          : await launchImageLibrary(options);
+  }, [editing, product, existingImages]);
 
-      if (result.assets && result.assets[0]) {
-        const newImage = {
-          uri: result.assets[0].uri,
-          type: result.assets[0].type || 'image/jpeg',
-          name: result.assets[0].fileName || `photo-${Date.now()}.jpg`,
-        };
-        setImages((prev) => [...prev, newImage]);
+  // Memoize handlers
+  const handleImagePick = useCallback(
+    async (type: 'camera' | 'gallery') => {
+      if (images.length >= 5) {
+        Alert.alert('Limit Reached', 'Maximum 5 images allowed');
+        return;
       }
-    } catch (err) {
-      console.error('Error picking image:', err);
-      Alert.alert('Error', 'Failed to pick image');
-    }
-  };
+      const options = {
+        mediaType: 'photo' as const,
+        quality: 0.8 as PhotoQuality,
+        maxWidth: 500,
+        maxHeight: 500,
+      };
+      try {
+        const result =
+          type === 'camera'
+            ? await launchCamera(options)
+            : await launchImageLibrary(options);
 
-  const showImagePickerOptions = () => {
+        if (result.assets && result.assets[0]) {
+          const newImage = {
+            uri: result.assets[0].uri,
+            type: result.assets[0].type || 'image/jpeg',
+            name: result.assets[0].fileName || `photo-${Date.now()}.jpg`,
+          };
+          setImages((prev) => [...prev, newImage]);
+        }
+      } catch (err) {
+        console.error('Error picking image:', err);
+        Alert.alert('Error', 'Failed to pick image');
+      }
+    },
+    [images.length]
+  );
+
+  const showImagePickerOptions = useCallback(() => {
     Alert.alert(
       editing ? 'Edit Product Image' : 'Add Product Image',
       'Choose an option',
@@ -129,72 +145,84 @@ const ProductFormScreen = () => {
         { text: 'Choose from Library', onPress: () => handleImagePick('gallery') },
       ]
     );
-  };
+  }, [editing, handleImagePick]);
 
-  const removeImage = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
-  };
+  const removeImage = useCallback(
+    (index: number) => {
+      setImages((prev) => prev.filter((_, i) => i !== index));
+    },
+    []
+  );
 
-  const handleMapPress = (event: MapPressEvent) => {
-    const { coordinate } = event.nativeEvent;
-    setLocation({
-      name: searchText.trim() || 'Selected Location',
-      latitude: coordinate.latitude,
-      longitude: coordinate.longitude,
-    });
-  };
-
-  const handleLocationNameChange = (text: string) => {
-    setSearchText(text);
-    if (location) {
+  const handleMapPress = useCallback(
+    (event: MapPressEvent) => {
+      const { coordinate } = event.nativeEvent;
       setLocation({
-        ...location,
-        name: text.trim() || 'Selected Location',
+        name: searchText.trim() || 'Selected Location',
+        latitude: coordinate.latitude,
+        longitude: coordinate.longitude,
       });
-    }
-  };
+    },
+    [searchText]
+  );
 
-  const onSubmit = async (data: ProductFormData) => {
-    if (!location) {
-      Alert.alert('Error', 'Please select a location');
-      return;
-    }
-    if (images.length === 0) {
-      Alert.alert('Error', 'Please add at least one image');
-      return;
-    }
-    setLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append('title', data.title);
-      formData.append('description', data.description);
-      formData.append('price', data.price);
-      formData.append('location', JSON.stringify(location));
-      images.forEach((image) => {
-        formData.append('images', image);
-      });
-
-      if (editing && product) {
-        await productService.updateProduct(product._id, formData);
-        notificationService.sendLocalNotification(product._id, data.title, { type: 'edit' }); // Notify on edit
-        Alert.alert('Success', 'Product updated successfully', [
-          { text: 'OK', onPress: () => navigation.goBack() },
-        ]);
-      } else {
-        const newProductResponse = await productService.addProduct(formData);
-        const newProduct = newProductResponse.data;
-        notificationService.sendLocalNotification(newProduct._id, newProduct.title, { type: 'add' }); // Notify on add
-        Alert.alert('Success', 'Product added successfully', [
-          { text: 'OK', onPress: () => navigation.goBack() },
-        ]);
+  const handleLocationNameChange = useCallback(
+    (text: string) => {
+      setSearchText(text);
+      if (location) {
+        setLocation({
+          ...location,
+          name: text.trim() || 'Selected Location',
+        });
       }
-    } catch (err) {
-      console.error('Product form error:', err);
-      Alert.alert('Error', editing ? 'Failed to update product' : 'Failed to add product');
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [location]
+  );
+
+  const onSubmit = useCallback(
+    async (data: ProductFormData) => {
+      if (!location) {
+        Alert.alert('Error', 'Please select a location');
+        return;
+      }
+      if (images.length === 0) {
+        Alert.alert('Error', 'Please add at least one image');
+        return;
+      }
+      setLoading(true);
+      try {
+        const formData = new FormData();
+        formData.append('title', data.title);
+        formData.append('description', data.description);
+        formData.append('price', data.price);
+        formData.append('location', JSON.stringify(location));
+        images.forEach((image) => {
+          formData.append('images', image);
+        });
+
+        if (editing && product) {
+          await productService.updateProduct(product._id, formData);
+          notificationService.sendLocalNotification(product._id, data.title, { type: 'edit' });
+          Alert.alert('Success', 'Product updated successfully', [
+            { text: 'OK', onPress: () => navigation.goBack() },
+          ]);
+        } else {
+          const newProductResponse = await productService.addProduct(formData);
+          const newProduct = newProductResponse.data;
+          notificationService.sendLocalNotification(newProduct._id, newProduct.title, { type: 'add' });
+          Alert.alert('Success', 'Product added successfully', [
+            { text: 'OK', onPress: () => navigation.goBack() },
+          ]);
+        }
+      } catch (err) {
+        console.error('Product form error:', err);
+        Alert.alert('Error', editing ? 'Failed to update product' : 'Failed to add product');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [editing, product, location, images, navigation]
+  );
 
   const renderImages = () => (
     <View style={styles.imagesContainer}>

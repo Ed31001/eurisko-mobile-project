@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -65,18 +65,23 @@ const SignUpScreen = () => {
     };
   }, []);
 
-  const handleImagePick = async (type: 'camera' | 'gallery') => {
-    try {
-      const options: CameraOptions & ImageLibraryOptions = {
-        mediaType: 'photo' as MediaType,
-        quality: 0.8,
-        maxWidth: 500,
-        maxHeight: 500,
-        saveToPhotos: true,
-      };
+  const handleImagePick = useCallback(
+    async (type: 'camera' | 'gallery') => {
+      try {
+        const options: CameraOptions & ImageLibraryOptions = {
+          mediaType: 'photo' as MediaType,
+          quality: 0.8,
+          maxWidth: 500,
+          maxHeight: 500,
+          saveToPhotos: true,
+        };
 
-      if (type === 'camera') {
-        const result = await launchCamera(options);
+        let result;
+        if (type === 'camera') {
+          result = await launchCamera(options);
+        } else {
+          result = await launchImageLibrary(options);
+        }
         if (result.assets && result.assets[0]) {
           setProfileImage({
             uri: result.assets[0].uri,
@@ -84,79 +89,75 @@ const SignUpScreen = () => {
             name: result.assets[0].fileName || 'photo.jpg',
           });
         }
-      } else {
-        const result = await launchImageLibrary(options);
-        if (result.assets && result.assets[0]) {
-          setProfileImage({
-            uri: result.assets[0].uri,
-            type: result.assets[0].type || 'image/jpeg',
-            name: result.assets[0].fileName || 'photo.jpg',
-          });
-        }
+      } catch (err) {
+        console.error('Error picking image:', err);
+        Alert.alert('Error', 'Failed to pick image. Please try again.');
       }
-    } catch (err) {
-      console.error('Error picking image:', err);
-      Alert.alert('Error', 'Failed to pick image. Please try again.');
-    }
-  };
+    },
+    []
+  );
 
-  const showImagePickerOptions = () => {
-      Alert.alert(
-        'Profile Picture',
-        'Choose an option',
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
-          {
-            text: 'Take Photo',
-            onPress: () => handleImagePick('camera'),
-          },
-          {
-            text: 'Choose from Library',
-            onPress: () => handleImagePick('gallery'),
-          },
-        ],
-        { cancelable: true }
-      );
-  };
+  const showImagePickerOptions = useCallback(() => {
+    Alert.alert(
+      'Profile Picture',
+      'Choose an option',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Take Photo', onPress: () => handleImagePick('camera') },
+        { text: 'Choose from Library', onPress: () => handleImagePick('gallery') },
+      ],
+      { cancelable: true }
+    );
+  }, [handleImagePick]);
 
-  const onSubmit = async (data: SignUpFormData) => {
-    const success = await signUp({
-      email: data.email,
-      password: data.password,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      profileImage: profileImage || undefined,
-    });
+  const onSubmit = useCallback(
+    async (data: SignUpFormData) => {
+      const success = await signUp({
+        email: data.email,
+        password: data.password,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        profileImage: profileImage || undefined,
+      });
 
-    if (success) {
-      setEmail(data.email);
-      Alert.alert(
-        'Success',
-        'Please check your email for the verification code.',
-        [
-          {
-            text: 'OK',
-            onPress: () => navigation.navigate('Verification'),
-          },
-        ]
-      );
-    } else {
-      Alert.alert('Error', error || 'Sign up failed. Please try again.');
-    }
-  };
+      if (success) {
+        setEmail(data.email);
+        Alert.alert(
+          'Success',
+          'Please check your email for the verification code.',
+          [
+            {
+              text: 'OK',
+              onPress: () => navigation.navigate('Verification'),
+            },
+          ]
+        );
+      } else {
+        Alert.alert('Error', error || 'Sign up failed. Please try again.');
+      }
+    },
+    [signUp, setEmail, profileImage, error, navigation]
+  );
+
+  const handleNavigateToLogin = useCallback(() => {
+    navigation.navigate('Login');
+  }, [navigation]);
+
+  // Memoize scrollViewContentStyle for performance
+  const scrollViewContentStyle = useMemo(
+    () => [
+      styles.content,
+      styles.scrollViewContent,
+      isPortrait ? styles.scrollViewContentPortrait : styles.scrollViewContentLandscape,
+    ],
+    [styles, isPortrait]
+  );
 
   return (
     <View style={styles.container}>
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={[
-          styles.content,
-          styles.scrollViewContent,
-          isPortrait ? styles.scrollViewContentPortrait : styles.scrollViewContentLandscape,
-        ]}
+        contentContainerStyle={scrollViewContentStyle}
         keyboardShouldPersistTaps="handled"
       >
         <Text style={styles.title}>Sign Up</Text>
@@ -254,7 +255,7 @@ const SignUpScreen = () => {
           title={loading ? 'Signing up...' : 'Sign Up'}
           onPress={handleSubmit(onSubmit)}
         />
-        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+        <TouchableOpacity onPress={handleNavigateToLogin}>
           <Text style={styles.linkText}>Already have an account? Log in</Text>
         </TouchableOpacity>
       </ScrollView>

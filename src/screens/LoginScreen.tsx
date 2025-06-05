@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '../navigation/navigator/navigator';
@@ -42,12 +42,16 @@ const LoginScreen = () => {
     };
   }, []);
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = useCallback(async (data: LoginFormData) => {
     const success = await login(data.email, data.password);
     if (!success) {
       Alert.alert('Login Failed', error || 'Please check your credentials and try again.');
     }
-  };
+  }, [login, error]);
+
+  const handleNavigateToSignUp = useCallback(() => {
+    navigation.navigate('SignUp');
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
@@ -108,7 +112,7 @@ const LoginScreen = () => {
           title={loading ? 'Logging in...' : 'Login'}
           onPress={handleSubmit(onSubmit)}
         />
-        <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+        <TouchableOpacity onPress={handleNavigateToSignUp}>
           <Text style={styles.linkText}>Don't have an account? Sign up</Text>
         </TouchableOpacity>
       </ScrollView>
