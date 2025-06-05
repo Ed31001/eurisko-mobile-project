@@ -137,14 +137,14 @@ const LocationPicker = React.memo(({ searchText, onSearchTextChange, location, o
   </View>
 ));
 
-const SubmitButton = React.memo(({ loading, onPress, editing, styles }) => (
+export const SubmitButton = React.memo(({ loading, onPress, editing, styles }) => (
   <TouchableOpacity
     style={[styles.submitButton, loading && styles.disabledButton]}
     onPress={onPress}
     disabled={loading}
   >
     {loading ? (
-      <ActivityIndicator color="#fff" />
+      <ActivityIndicator color="#fff" testID="submit-loading" />
     ) : (
       <Text style={styles.submitButtonText}>
         {editing ? 'Update Product' : 'Add Product'}

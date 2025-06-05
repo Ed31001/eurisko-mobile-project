@@ -16,23 +16,20 @@ const ProductListHeaderButtons = React.memo(({ onShowSearch, onShowSort }: {
   return (
     <View style={styles.container}>
       <TouchableOpacity
+        accessibilityRole="button"
         onPress={onShowSearch}
         style={[styles.button, { backgroundColor: theme.buttonBackground }]}
-      >
-        <Text style={[styles.buttonText, { color: theme.buttonText }]}>🔍</Text>
-      </TouchableOpacity>
+      />
       <TouchableOpacity
+        accessibilityRole="button"
         onPress={onShowSort}
         style={[styles.button, { backgroundColor: theme.buttonBackground }]}
-      >
-        <Text style={[styles.buttonText, { color: theme.buttonText }]}>↕️</Text>
-      </TouchableOpacity>
+      />
       <TouchableOpacity
+        accessibilityRole="button"
         onPress={() => navigation.navigate('AddProduct')}
         style={[styles.button, { backgroundColor: theme.buttonBackground }]}
-      >
-        <Text style={[styles.buttonText, { color: theme.buttonText }]}>➕</Text>
-      </TouchableOpacity>
+      />
     </View>
   );
 });
