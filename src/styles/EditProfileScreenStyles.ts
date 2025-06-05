@@ -86,6 +86,14 @@ const useEditProfileScreenStyles = () => {
       alignItems: 'center',
       backgroundColor: 'rgba(0,0,0,0.1)',
     },
+    errorCenteredContainer: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    errorCenteredText: {
+      fontSize: 16,
+      marginBottom: 16,
+    },
   });
 };
 

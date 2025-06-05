@@ -51,41 +51,16 @@ export interface ProductDetails {
 
 export const productService = {
   searchProducts: async (query: string, page = 1, limit = 5, sortOrder?: 'asc' | 'desc') => {
+    if (!query) {
+      throw new Error('Search query cannot be empty');
+    }
     try {
-      const response = await api.get<ProductsResponse>(
-        '/products?page=1&limit=100'
-      );
-
-      let filteredData = response.data.data || [];
-
-      if (query) {
-        filteredData = filteredData.filter(product =>
-          product.title.toLowerCase().includes(query.toLowerCase())
-        );
-      }
-
+      let url = `/products/search?query=${encodeURIComponent(query)}&page=${page}&limit=${limit}`;
       if (sortOrder) {
-        filteredData.sort((a, b) => {
-          return sortOrder === 'asc' ? a.price - b.price : b.price - a.price;
-        });
+        url += `&sortBy=price&order=${sortOrder}`;
       }
-
-      const totalItems = filteredData.length;
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + limit;
-
-      return {
-        success: true,
-        data: filteredData.slice(startIndex, endIndex),
-        pagination: {
-          currentPage: page,
-          totalPages: Math.ceil(totalItems / limit),
-          hasNextPage: endIndex < totalItems,
-          hasPrevPage: page > 1,
-          totalItems: totalItems,
-          limit,
-        },
-      };
+      const response = await api.get<ProductsResponse>(url);
+      return response.data;
     } catch (error) {
       console.error('Error searching products:', error);
       throw error;

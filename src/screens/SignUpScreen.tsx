@@ -38,10 +38,72 @@ interface SignUpFormData {
   };
 }
 
+const ShowHideButton = React.memo(function ShowHideButton({
+  visible,
+  setVisible,
+  styles,
+}: {
+  visible: boolean;
+  setVisible: (v: boolean) => void;
+  styles: any;
+}) {
+  return (
+    <TouchableOpacity
+      onPress={() => setVisible(!visible)}
+      style={styles.showPasswordButton}
+    >
+      <Text style={styles.showPasswordText}>
+        {visible ? 'Hide' : 'Show'}
+      </Text>
+    </TouchableOpacity>
+  );
+});
+
+const PasswordField = React.memo(function PasswordField({
+  value,
+  onChange,
+  error,
+  styles,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  error?: string;
+  styles: any;
+  placeholder: string;
+}) {
+  const [visible, setVisible] = React.useState(false);
+
+  // Memoize the show/hide button so it only re-renders when 'visible' changes
+  const showHideButton = React.useMemo(
+    () => (
+      <ShowHideButton
+        visible={visible}
+        setVisible={setVisible}
+        styles={styles}
+      />
+    ),
+    [visible, setVisible, styles]
+  );
+
+  return (
+    <View style={[styles.passwordContainer, error && styles.errorInput]}>
+      <TextInput
+        style={styles.passwordInput}
+        placeholder={placeholder}
+        placeholderTextColor={styles.passwordInput.color}
+        secureTextEntry={!visible}
+        value={value}
+        onChangeText={onChange}
+      />
+      {showHideButton}
+    </View>
+  );
+});
+
 const SignUpScreen = () => {
   const { signUp, setEmail, error, loading } = useAuthStore();
   const navigation = useNavigation<NavigationProp>();
-  const [passwordVisible, setPasswordVisible] = useState(false);
   const [isPortrait, setIsPortrait] = useState(true);
   const [profileImage, setProfileImage] = useState<any>(null);
   const styles = useSignUpScreenStyles();
@@ -225,30 +287,19 @@ const SignUpScreen = () => {
         />
         {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
 
-        <View style={[styles.passwordContainer, errors.password && styles.errorInput]}>
-          <Controller
-            name="password"
-            control={control}
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                style={styles.passwordInput}
-                placeholder="Password"
-                placeholderTextColor={styles.passwordInput.color}
-                secureTextEntry={!passwordVisible}
-                value={value}
-                onChangeText={onChange}
-              />
-            )}
-          />
-          <TouchableOpacity
-            onPress={() => setPasswordVisible(!passwordVisible)}
-            style={styles.showPasswordButton}
-          >
-            <Text style={styles.showPasswordText}>
-              {passwordVisible ? 'Hide' : 'Show'}
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <Controller
+          name="password"
+          control={control}
+          render={({ field: { onChange, value } }) => (
+            <PasswordField
+              value={value}
+              onChange={onChange}
+              error={errors.password?.message}
+              styles={styles}
+              placeholder="Password"
+            />
+          )}
+        />
         {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
 
         <Button

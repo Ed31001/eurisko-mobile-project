@@ -63,5 +63,13 @@ export const useProductListStyles = () => {
     skeletonContainer: {
       padding: moderateScale(16),
     },
+    noResultsContainer: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    noResultsText: {
+      fontSize: 18,
+      marginTop: 32,
+    },
   });
 };

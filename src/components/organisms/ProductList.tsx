@@ -28,6 +28,7 @@ const ProductList = () => {
     loadPreviousPage,
     refreshProducts,
     error,
+    searchQuery, // <-- add this
   } = useProductStore();
 
   const styles = useProductListStyles();
@@ -181,6 +182,24 @@ const ProductList = () => {
           }
           contentContainerStyle={listContentStyle}
         />
+      </View>
+    );
+  }
+
+  // Add these to your ProductListStyles (or define them here for quick fix)
+  const noResultsContainer = [
+    styles.container,
+    styles.noResultsContainer,
+    { backgroundColor: theme.backgroundColor },
+  ];
+  const noResultsText = [styles.noResultsText, { color: theme.textColor }];
+
+  if (!loading && products.length === 0 && searchQuery) {
+    return (
+      <View style={noResultsContainer}>
+        <Text style={noResultsText}>
+          No results
+        </Text>
       </View>
     );
   }

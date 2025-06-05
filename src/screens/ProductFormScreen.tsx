@@ -29,6 +29,130 @@ const productSchema = z.object({
 
 type ProductFormData = z.infer<typeof productSchema>;
 
+const ImagesSection = React.memo(({ images, onAdd, onRemove, styles }) => (
+  <View style={styles.imagesContainer}>
+    {images.map((image, index) => (
+      <View key={index} style={styles.imageContainer}>
+        <Image source={{ uri: image.uri }} style={styles.image} />
+        <TouchableOpacity
+          style={styles.removeImageButton}
+          onPress={() => onRemove(index)}
+        >
+          <Text style={styles.removeImageText}>×</Text>
+        </TouchableOpacity>
+      </View>
+    ))}
+    {images.length < 5 && (
+      <TouchableOpacity
+        style={styles.addImageButton}
+        onPress={onAdd}
+      >
+        <Text style={styles.addImageText}>+</Text>
+      </TouchableOpacity>
+    )}
+  </View>
+));
+
+const ProductFormFields = React.memo(({ control, errors, styles }) => (
+  <>
+    <Controller
+      name="title"
+      control={control}
+      render={({ field: { onChange, value } }) => (
+        <TextInput
+          style={[styles.input, errors.title && styles.errorInput]}
+          placeholder="Product Title"
+          placeholderTextColor="gray"
+          value={value}
+          onChangeText={onChange}
+        />
+      )}
+    />
+    {errors.title && <Text style={styles.errorText}>{errors.title.message}</Text>}
+
+    <Controller
+      name="description"
+      control={control}
+      render={({ field: { onChange, value } }) => (
+        <TextInput
+          style={[styles.textArea, errors.description && styles.errorInput]}
+          placeholder="Product Description"
+          placeholderTextColor="gray"
+          multiline
+          numberOfLines={4}
+          value={value}
+          onChangeText={onChange}
+        />
+      )}
+    />
+    {errors.description && <Text style={styles.errorText}>{errors.description.message}</Text>}
+
+    <Controller
+      name="price"
+      control={control}
+      render={({ field: { onChange, value } }) => (
+        <TextInput
+          style={[styles.input, errors.price && styles.errorInput]}
+          placeholder="Price"
+          placeholderTextColor="gray"
+          keyboardType="numeric"
+          value={value}
+          onChangeText={onChange}
+        />
+      )}
+    />
+    {errors.price && <Text style={styles.errorText}>{errors.price.message}</Text>}
+  </>
+));
+
+const LocationPicker = React.memo(({ searchText, onSearchTextChange, location, onMapPress, styles, mapRegion }) => (
+  <View style={styles.locationContainer}>
+    <TextInput
+      style={[styles.input, styles.locationInput]}
+      placeholder="Enter location name"
+      placeholderTextColor="gray"
+      value={searchText}
+      onChangeText={onSearchTextChange}
+    />
+    <MapView
+      style={styles.map}
+      initialRegion={mapRegion}
+      onPress={onMapPress}
+    >
+      {location && (
+        <Marker
+          coordinate={{
+            latitude: location.latitude,
+            longitude: location.longitude,
+          }}
+          title={location.name}
+        />
+      )}
+    </MapView>
+    {location && (
+      <Text style={styles.locationText}>
+        Selected: {location.name} ({location.latitude.toFixed(4)}, {location.longitude.toFixed(4)})
+      </Text>
+    )}
+  </View>
+));
+
+const SubmitButton = React.memo(({ loading, onPress, editing, styles }) => (
+  <TouchableOpacity
+    style={[styles.submitButton, loading && styles.disabledButton]}
+    onPress={onPress}
+    disabled={loading}
+  >
+    {loading ? (
+      <ActivityIndicator color="#fff" />
+    ) : (
+      <Text style={styles.submitButtonText}>
+        {editing ? 'Update Product' : 'Add Product'}
+      </Text>
+    )}
+  </TouchableOpacity>
+));
+
 const ProductFormScreen = () => {
   const navigation = useNavigation();
   const route = useRoute<any>();
@@ -224,136 +348,37 @@ const ProductFormScreen = () => {
     [editing, product, location, images, navigation]
   );
 
-  const renderImages = () => (
-    <View style={styles.imagesContainer}>
-      {images.map((image, index) => (
-        <View key={index} style={styles.imageContainer}>
-          <Image source={{ uri: image.uri }} style={styles.image} />
-          <TouchableOpacity
-            style={styles.removeImageButton}
-            onPress={() => removeImage(index)}
-          >
-            <Text style={styles.removeImageText}>×</Text>
-          </TouchableOpacity>
-        </View>
-      ))}
-      {images.length < 5 && (
-        <TouchableOpacity
-          style={styles.addImageButton}
-          onPress={showImagePickerOptions}
-        >
-          <Text style={styles.addImageText}>+</Text>
-        </TouchableOpacity>
-      )}
-    </View>
-  );
-
-  const renderForm = () => (
-    <>
-      <Controller
-        name="title"
-        control={control}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            style={[styles.input, errors.title && styles.errorInput]}
-            placeholder="Product Title"
-            placeholderTextColor="gray"
-            value={value}
-            onChangeText={onChange}
-          />
-        )}
-      />
-      {errors.title && <Text style={styles.errorText}>{errors.title.message}</Text>}
-
-      <Controller
-        name="description"
-        control={control}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            style={[styles.textArea, errors.description && styles.errorInput]}
-            placeholder="Product Description"
-            placeholderTextColor="gray"
-            multiline
-            numberOfLines={4}
-            value={value}
-            onChangeText={onChange}
-          />
-        )}
-      />
-      {errors.description && <Text style={styles.errorText}>{errors.description.message}</Text>}
-
-      <Controller
-        name="price"
-        control={control}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            style={[styles.input, errors.price && styles.errorInput]}
-            placeholder="Price"
-            placeholderTextColor="gray"
-            keyboardType="numeric"
-            value={value}
-            onChangeText={onChange}
-          />
-        )}
-      />
-      {errors.price && <Text style={styles.errorText}>{errors.price.message}</Text>}
-    </>
-  );
-
-  const renderLocationPicker = () => (
-    <View style={styles.locationContainer}>
-      <TextInput
-        style={[styles.input, styles.locationInput]}
-        placeholder="Enter location name"
-        placeholderTextColor="gray"
-        value={searchText}
-        onChangeText={handleLocationNameChange}
-      />
-      <MapView
-        style={styles.map}
-        initialRegion={mapRegion}
-        onPress={handleMapPress}
-      >
-        {location && (
-          <Marker
-            coordinate={{
-              latitude: location.latitude,
-              longitude: location.longitude,
-            }}
-            title={location.name}
-          />
-        )}
-      </MapView>
-      {location && (
-        <Text style={styles.locationText}>
-          Selected: {location.name} ({location.latitude.toFixed(4)}, {location.longitude.toFixed(4)})
-        </Text>
-      )}
-    </View>
-  );
-
   return (
     <View style={styles.container}>
       <ScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.content}
       >
-        {renderImages()}
-        {renderForm()}
-        {renderLocationPicker()}
-        <TouchableOpacity
-          style={[styles.submitButton, loading && styles.disabledButton]}
+        <ImagesSection
+          images={images}
+          onAdd={showImagePickerOptions}
+          onRemove={removeImage}
+          styles={styles}
+        />
+        <ProductFormFields
+          control={control}
+          errors={errors}
+          styles={styles}
+        />
+        <LocationPicker
+          searchText={searchText}
+          onSearchTextChange={handleLocationNameChange}
+          location={location}
+          onMapPress={handleMapPress}
+          styles={styles}
+          mapRegion={mapRegion}
+        />
+        <SubmitButton
+          loading={loading}
           onPress={handleSubmit(onSubmit)}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.submitButtonText}>
-              {editing ? 'Update Product' : 'Add Product'}
-            </Text>
-          )}
-        </TouchableOpacity>
+          editing={editing}
+          styles={styles}
+        />
       </ScrollView>
     </View>
   );

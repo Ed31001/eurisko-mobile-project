@@ -3,6 +3,7 @@ import { productService, Product, ProductDetails } from '../services/productServ
 
 type ProductState = {
   products: Product[];
+  allSearchResults: Product[]; // <-- Add this line
   loading: boolean;
   error: string | null;
   currentPage: number;
@@ -19,8 +20,11 @@ type ProductState = {
   getProductById: (id: string) => Promise<void>;
 };
 
+const PAGE_SIZE = 5;
+
 export const useProductStore = create<ProductState>((set, get) => ({
   products: [],
+  allSearchResults: [], // <-- Add this line
   loading: false,
   error: null,
   currentPage: 1,
@@ -34,7 +38,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
     set({ loading: true, error: null, searchQuery: '' });
     try {
       const options = sortOrder ? { sortBy: 'price', order: sortOrder } : undefined;
-      const response = await productService.getProducts(1, 5, options);
+      const response = await productService.getProducts(1, PAGE_SIZE, options);
 
       const pagination = response.pagination || {
         currentPage: 1,
@@ -42,11 +46,12 @@ export const useProductStore = create<ProductState>((set, get) => ({
         hasNextPage: false,
         hasPrevPage: false,
         totalItems: response.data.length,
-        limit: 5,
+        limit: PAGE_SIZE,
       };
 
       set({
         products: response.data,
+        allSearchResults: [],
         currentPage: pagination.currentPage,
         totalPages: pagination.totalPages,
       });
@@ -58,29 +63,42 @@ export const useProductStore = create<ProductState>((set, get) => ({
   },
 
   loadNextPage: async () => {
-    const { currentPage, totalPages, loading, searchQuery, sortOrder } = get();
-    if (loading || currentPage >= totalPages){ return; }
+    const { currentPage, totalPages, loading, searchQuery, allSearchResults, sortOrder } = get();
+    if (loading || currentPage >= totalPages) { return; }
 
     set({ loading: true });
     try {
-      let response;
-      if (searchQuery) {
-        response = await productService.searchProducts(
-          searchQuery,
-          currentPage + 1,
-          5,
-          sortOrder
-        );
-      } else {
-        const options = sortOrder ? { sortBy: 'price', order: sortOrder } : undefined;
-        response = await productService.getProducts(currentPage + 1, 5, options);
-      }
+      if (searchQuery && searchQuery.trim() && allSearchResults.length > 0) {
+        // Manual pagination for search results
+        const page = currentPage + 1;
+        const totalItems = allSearchResults.length;
+        const searchTotalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+        const paginated = allSearchResults.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-      set({
-        products: response.data,
-        currentPage: response.pagination.currentPage,
-        totalPages: response.pagination.totalPages,
-      });
+        set({
+          products: paginated,
+          currentPage: page,
+          totalPages: searchTotalPages,
+        });
+      } else {
+        // Normal backend pagination
+        const options = sortOrder ? { sortBy: 'price', order: sortOrder } : undefined;
+        const response = await productService.getProducts(currentPage + 1, PAGE_SIZE, options);
+        const pagination = response.pagination || {
+          currentPage: 1,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+          totalItems: response.data.length,
+          limit: PAGE_SIZE,
+        };
+        set({
+          products: response.data,
+          allSearchResults: [],
+          currentPage: pagination.currentPage,
+          totalPages: pagination.totalPages,
+        });
+      }
     } catch (err: any) {
       set({ error: err.message || 'Failed to load next page' });
     } finally {
@@ -89,29 +107,42 @@ export const useProductStore = create<ProductState>((set, get) => ({
   },
 
   loadPreviousPage: async () => {
-    const { currentPage, loading, searchQuery, sortOrder } = get();
-    if (loading || currentPage <= 1){ return; }
+    const { currentPage, loading, searchQuery, allSearchResults, sortOrder } = get();
+    if (loading || currentPage <= 1) { return; }
 
     set({ loading: true });
     try {
-      let response;
-      if (searchQuery) {
-        response = await productService.searchProducts(
-          searchQuery,
-          currentPage - 1,
-          5,
-          sortOrder
-        );
-      } else {
-        const options = sortOrder ? { sortBy: 'price', order: sortOrder } : undefined;
-        response = await productService.getProducts(currentPage - 1, 5, options);
-      }
+      if (searchQuery && searchQuery.trim() && allSearchResults.length > 0) {
+        // Manual pagination for search results
+        const page = currentPage - 1;
+        const totalItems = allSearchResults.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+        const paginated = allSearchResults.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-      set({
-        products: response.data,
-        currentPage: response.pagination.currentPage,
-        totalPages: response.pagination.totalPages,
-      });
+        set({
+          products: paginated,
+          currentPage: page,
+          totalPages,
+        });
+      } else {
+        // Normal backend pagination
+        const options = sortOrder ? { sortBy: 'price', order: sortOrder } : undefined;
+        const response = await productService.getProducts(currentPage - 1, PAGE_SIZE, options);
+        const pagination = response.pagination || {
+          currentPage: 1,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+          totalItems: response.data.length,
+          limit: PAGE_SIZE,
+        };
+        set({
+          products: response.data,
+          allSearchResults: [],
+          currentPage: pagination.currentPage,
+          totalPages: pagination.totalPages,
+        });
+      }
     } catch (err: any) {
       set({ error: err.message || 'Failed to load previous page' });
     } finally {
@@ -124,19 +155,49 @@ export const useProductStore = create<ProductState>((set, get) => ({
     set({ loading: true, error: null, searchQuery: trimmedQuery });
 
     try {
-      const response = await productService.searchProducts(trimmedQuery, 1, 5);
+      let response;
+      let allResults: Product[] = [];
+      if (trimmedQuery) {
+        // Fetch all search results and paginate manually
+        response = await productService.searchProducts(trimmedQuery);
+        allResults = response.data;
 
-      set({
-        products: response.data,
-        currentPage: response.pagination.currentPage,
-        totalPages: response.pagination.totalPages,
-      });
+        // Manual pagination for search results
+        const page = 1;
+        const totalItems = allResults.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+        const paginated = allResults.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
+        set({
+          allSearchResults: allResults,
+          products: paginated,
+          currentPage: page,
+          totalPages,
+        });
+      } else {
+        // Use backend pagination for all products
+        response = await productService.getProducts(1, PAGE_SIZE);
+        const pagination = response.pagination || {
+          currentPage: 1,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+          totalItems: response.data.length,
+          limit: PAGE_SIZE,
+        };
+
+        set({
+          allSearchResults: [],
+          products: response.data,
+          currentPage: pagination.currentPage,
+          totalPages: pagination.totalPages,
+        });
+      }
     } catch (err: any) {
-      console.error('Search error:', err);
       set({
         error: err.message || 'Failed to search products',
         products: [],
+        allSearchResults: [],
         currentPage: 1,
         totalPages: 1,
       });
@@ -146,25 +207,66 @@ export const useProductStore = create<ProductState>((set, get) => ({
   },
 
   sortProducts: async (order: 'asc' | 'desc') => {
-    const { searchQuery } = get();
+    const { searchQuery, allSearchResults } = get();
     set({ loading: true, error: null, sortOrder: order });
 
     try {
       let response;
-      if (searchQuery) {
-        response = await productService.searchProducts(searchQuery, 1, 5, order);
+      const trimmedQuery = searchQuery.trim();
+      if (trimmedQuery && allSearchResults.length > 0) {
+        // Sort and re-paginate the already fetched search results
+        const sorted = [...allSearchResults].sort((a, b) =>
+          order === 'asc' ? a.price - b.price : b.price - a.price
+        );
+        const page = 1;
+        const totalItems = sorted.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+        const paginated = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+        set({
+          allSearchResults: sorted,
+          products: paginated,
+          currentPage: page,
+          totalPages,
+        });
+      } else if (trimmedQuery) {
+        // If for some reason allSearchResults is empty, fetch and sort
+        response = await productService.searchProducts(trimmedQuery);
+        const sorted = [...response.data].sort((a, b) =>
+          order === 'asc' ? a.price - b.price : b.price - a.price
+        );
+        const page = 1;
+        const totalItems = sorted.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+        const paginated = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+        set({
+          allSearchResults: sorted,
+          products: paginated,
+          currentPage: page,
+          totalPages,
+        });
       } else {
-        response = await productService.getProducts(1, 5, {
+        // Normal backend sort
+        response = await productService.getProducts(1, PAGE_SIZE, {
           sortBy: 'price',
           order,
         });
+        const pagination = response.pagination || {
+          currentPage: 1,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+          totalItems: response.data.length,
+          limit: PAGE_SIZE,
+        };
+        set({
+          products: response.data,
+          allSearchResults: [],
+          currentPage: pagination.currentPage,
+          totalPages: pagination.totalPages,
+        });
       }
-
-      set({
-        products: response.data,
-        currentPage: response.pagination.currentPage,
-        totalPages: response.pagination.totalPages,
-      });
     } catch (err: any) {
       set({ error: err.message || 'Failed to sort products' });
     } finally {
@@ -173,26 +275,60 @@ export const useProductStore = create<ProductState>((set, get) => ({
   },
 
   refreshProducts: async () => {
-    const { searchQuery, sortOrder } = get();
+    const { searchQuery, sortOrder, allSearchResults } = get();
     set({ loading: true, error: null });
     try {
-      let response;
-      if (searchQuery) {
-        response = await productService.searchProducts(searchQuery, 1, 5);
+      if (searchQuery && searchQuery.trim() && allSearchResults.length > 0) {
+        // Just re-paginate the already fetched search results
+        const page = 1;
+        const totalItems = allSearchResults.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+        const paginated = allSearchResults.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+        set({
+          products: paginated,
+          currentPage: page,
+          totalPages,
+        });
+      } else if (searchQuery && searchQuery.trim()) {
+        // If for some reason allSearchResults is empty, fetch again
+        const response = await productService.searchProducts(searchQuery, 1, PAGE_SIZE);
+        const allResults = response.data;
+        const page = 1;
+        const totalItems = allResults.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / PAGE_SIZE));
+        const paginated = allResults.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+        set({
+          allSearchResults: allResults,
+          products: paginated,
+          currentPage: page,
+          totalPages,
+        });
       } else {
         const options = sortOrder ? { sortBy: 'price', order: sortOrder } : undefined;
-        response = await productService.getProducts(1, 5, options);
+        const response = await productService.getProducts(1, PAGE_SIZE, options);
+        const pagination = response.pagination || {
+          currentPage: 1,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+          totalItems: response.data.length,
+          limit: PAGE_SIZE,
+        };
+
+        set({
+          products: response.data,
+          allSearchResults: [],
+          currentPage: pagination.currentPage,
+          totalPages: pagination.totalPages,
+        });
       }
-      set({
-        products: response.data,
-        currentPage: response.pagination.currentPage,
-        totalPages: response.pagination.totalPages,
-        error: null,
-      });
     } catch (err: any) {
       set({
         error: err.message || 'Failed to refresh products',
         products: [],
+        allSearchResults: [],
       });
     } finally {
       set({ loading: false });
