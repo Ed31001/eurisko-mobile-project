@@ -38,7 +38,14 @@ const CartButton = React.memo(() => {
   );
 });
 
-const showHeaderModalRef = React.createRef();
+// Define the type for the ref
+type ProductListHeaderRef = {
+  showSearch: () => void;
+  showSort: () => void;
+};
+
+// Create the ref with the correct type
+const showHeaderModalRef = React.createRef<ProductListHeaderRef>();
 
 const HeaderLeft = () => (
   <>

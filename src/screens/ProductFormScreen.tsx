@@ -29,7 +29,41 @@ const productSchema = z.object({
 
 type ProductFormData = z.infer<typeof productSchema>;
 
-const ImagesSection = React.memo(({ images, onAdd, onRemove, styles }) => (
+type ImagesSectionProps = {
+  images: { uri: string; type?: string; name?: string }[];
+  onAdd: () => void;
+  onRemove: (index: number) => void;
+  styles: any;
+};
+
+type ProductFormFieldsProps = {
+  control: any;
+  errors: any;
+  styles: any;
+};
+
+type LocationPickerProps = {
+  searchText: string;
+  onSearchTextChange: (text: string) => void;
+  location: { name: string; latitude: number; longitude: number } | null;
+  onMapPress: (event: MapPressEvent) => void;
+  styles: any;
+  mapRegion: any;
+};
+
+type SubmitButtonProps = {
+  loading: boolean;
+  onPress: (e?: any) => void;
+  editing: boolean;
+  styles: any;
+};
+
+const ImagesSection = React.memo(({
+  images,
+  onAdd,
+  onRemove,
+  styles,
+}: ImagesSectionProps) => (
   <View style={styles.imagesContainer}>
     {images.map((image, index) => (
       <View key={index} style={styles.imageContainer}>
@@ -53,7 +87,11 @@ const ImagesSection = React.memo(({ images, onAdd, onRemove, styles }) => (
   </View>
 ));
 
-const ProductFormFields = React.memo(({ control, errors, styles }) => (
+const ProductFormFields = React.memo(({
+  control,
+  errors,
+  styles,
+}: ProductFormFieldsProps) => (
   <>
     <Controller
       name="title"
@@ -105,7 +143,14 @@ const ProductFormFields = React.memo(({ control, errors, styles }) => (
   </>
 ));
 
-const LocationPicker = React.memo(({ searchText, onSearchTextChange, location, onMapPress, styles, mapRegion }) => (
+const LocationPicker = React.memo(({
+  searchText,
+  onSearchTextChange,
+  location,
+  onMapPress,
+  styles,
+  mapRegion,
+}: LocationPickerProps) => (
   <View style={styles.locationContainer}>
     <TextInput
       style={[styles.input, styles.locationInput]}
@@ -137,7 +182,12 @@ const LocationPicker = React.memo(({ searchText, onSearchTextChange, location, o
   </View>
 ));
 
-export const SubmitButton = React.memo(({ loading, onPress, editing, styles }) => (
+export const SubmitButton = React.memo(({
+  loading,
+  onPress,
+  editing,
+  styles,
+}: SubmitButtonProps) => (
   <TouchableOpacity
     style={[styles.submitButton, loading && styles.disabledButton]}
     onPress={onPress}

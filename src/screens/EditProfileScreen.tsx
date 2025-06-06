@@ -16,10 +16,17 @@ import useEditProfileScreenStyles from '../styles/EditProfileScreenStyles';
 import { useThemeStore } from '../store/useThemeStore';
 
 // Memoized input to avoid re-rendering
-const MemoizedInput = React.memo((props) => <TextInput {...props} />);
+const MemoizedInput = React.memo((props: React.ComponentProps<typeof TextInput>) => <TextInput {...props} />);
+
+type ErrorRetryProps = {
+  error: string;
+  onRetry: () => void;
+  theme: any;
+  styles: any;
+};
 
 // Memoized error/retry UI
-const ErrorRetry = React.memo(({ error, onRetry, theme, styles }) => (
+const ErrorRetry = React.memo(({ error, onRetry, theme, styles }: ErrorRetryProps) => (
   <View style={[styles.container, styles.errorCenteredContainer]}>
     <Text style={[styles.errorCenteredText, { color: theme.invalidInput }]}>
       {error}
@@ -28,9 +35,22 @@ const ErrorRetry = React.memo(({ error, onRetry, theme, styles }) => (
   </View>
 ));
 
+type ProfileImageSectionProps = {
+  profileImage: any;
+  userImageUrl?: string;
+  initials: string;
+  imageLoading: boolean;
+  setImageError: React.Dispatch<React.SetStateAction<boolean>>;
+  setImageLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  getFullImageUrl: (relativeUrl: string) => string;
+  theme: any;
+  styles: any;
+  onPress: () => void;
+};
+
 // Memoized profile image section
-const ProfileImageSection = React.memo(
-  ({
+const ProfileImageSection = React.memo((props: ProfileImageSectionProps) => {
+  const {
     profileImage,
     userImageUrl,
     initials,
@@ -41,81 +61,93 @@ const ProfileImageSection = React.memo(
     theme,
     styles,
     onPress,
-  }) => {
-    return (
-      <TouchableOpacity style={styles.imageContainer} onPress={onPress}>
-        {profileImage ? (
+  } = props;
+
+  return (
+    <TouchableOpacity style={styles.imageContainer} onPress={onPress}>
+      {profileImage ? (
+        <Image
+          source={{ uri: profileImage.uri }}
+          style={styles.profileImage}
+          onError={(e) => {
+            console.error('Failed to load profile image:', e.nativeEvent.error);
+            setImageError(true);
+          }}
+        />
+      ) : userImageUrl ? (
+        <>
           <Image
-            source={{ uri: profileImage.uri }}
+            source={{
+              uri: getFullImageUrl(userImageUrl),
+              headers: { Accept: 'image/*' },
+            }}
             style={styles.profileImage}
+            onLoadStart={() => setImageLoading(true)}
+            onLoadEnd={() => setImageLoading(false)}
             onError={(e) => {
               console.error('Failed to load profile image:', e.nativeEvent.error);
               setImageError(true);
+              setImageLoading(false);
             }}
           />
-        ) : userImageUrl ? (
-          <>
-            <Image
-              source={{
-                uri: getFullImageUrl(userImageUrl),
-                headers: { Accept: 'image/*' },
-              }}
-              style={styles.profileImage}
-              onLoadStart={() => setImageLoading(true)}
-              onLoadEnd={() => setImageLoading(false)}
-              onError={(e) => {
-                console.error('Failed to load profile image:', e.nativeEvent.error);
-                setImageError(true);
-                setImageLoading(false);
-              }}
+          {imageLoading && (
+            <ActivityIndicator
+              size="large"
+              color={theme.buttonBackground}
+              style={styles.loader}
             />
-            {imageLoading && (
-              <ActivityIndicator
-                size="large"
-                color={theme.buttonBackground}
-                style={styles.loader}
-              />
-            )}
-          </>
-        ) : (
-          <View style={styles.placeholderContainer}>
-            <Text style={styles.placeholderText}>{initials}</Text>
-          </View>
-        )}
-        <View style={styles.editIconContainer}>
-          <Text style={styles.editIconText}>✎</Text>
+          )}
+        </>
+      ) : (
+        <View style={styles.placeholderContainer}>
+          <Text style={styles.placeholderText}>{initials}</Text>
         </View>
-      </TouchableOpacity>
-    );
-  }
-);
+      )}
+      <View style={styles.editIconContainer}>
+        <Text style={styles.editIconText}>✎</Text>
+      </View>
+    </TouchableOpacity>
+  );
+});
 
-const ProfileInputs = React.memo(
-  ({ firstName, lastName, onFirstNameChange, onLastNameChange, styles }) => (
-    <>
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>First Name</Text>
-        <MemoizedInput
-          style={styles.input}
-          value={firstName}
-          onChangeText={onFirstNameChange}
-          placeholder="Enter first name"
-          placeholderTextColor={styles.input.color}
-        />
-      </View>
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Last Name</Text>
-        <MemoizedInput
-          style={styles.input}
-          value={lastName}
-          onChangeText={onLastNameChange}
-          placeholder="Enter last name"
-          placeholderTextColor={styles.input.color}
-        />
-      </View>
-    </>
-  )
-);
+type ProfileInputsProps = {
+  firstName: string;
+  lastName: string;
+  onFirstNameChange: (text: string) => void;
+  onLastNameChange: (text: string) => void;
+  styles: any;
+};
+
+const ProfileInputs = React.memo(({
+  firstName,
+  lastName,
+  onFirstNameChange,
+  onLastNameChange,
+  styles,
+}: ProfileInputsProps) => (
+  <>
+    <View style={styles.inputContainer}>
+      <Text style={styles.label}>First Name</Text>
+      <MemoizedInput
+        style={styles.input}
+        value={firstName}
+        onChangeText={onFirstNameChange}
+        placeholder="Enter first name"
+        placeholderTextColor={styles.input.color}
+      />
+    </View>
+    <View style={styles.inputContainer}>
+      <Text style={styles.label}>Last Name</Text>
+      <MemoizedInput
+        style={styles.input}
+        value={lastName}
+        onChangeText={onLastNameChange}
+        placeholder="Enter last name"
+        placeholderTextColor={styles.input.color}
+      />
+    </View>
+  </>
+));
 
 const EditProfileScreen = () => {
   // Select only what you need from the store
