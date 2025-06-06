@@ -5,6 +5,8 @@ import { NavigationProp } from '../navigation/navigator/navigator';
 import Button from '../components/atoms/Button';
 import useVerificationScreenStyles from '../styles/VerificationScreenStyles';
 import { useAuthStore } from '../store/useAuthStore';
+import { useFocusEffect } from '@react-navigation/native';
+import { logScreenView } from '../utils/firebase';
 
 const VerificationScreen = () => {
   const styles = useVerificationScreenStyles();
@@ -38,6 +40,12 @@ const VerificationScreen = () => {
       Alert.alert('Error', error || 'Failed to resend verification code');
     }
   }, [resendOtp, error]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      logScreenView('VerificationScreen', 'VerificationScreen');
+    }, [])
+  );
 
   return (
     <View style={styles.container}>

@@ -18,6 +18,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import useProductFormScreenStyles from '../styles/ProductFormScreenStyles';
 import { productService, ProductDetails } from '../services/productService';
 import notificationService from '../services/notificationService';
+import { useFocusEffect } from '@react-navigation/native';
+import { logScreenView } from '../utils/firebase';
 
 const productSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -396,6 +398,12 @@ const ProductFormScreen = () => {
       }
     },
     [editing, product, location, images, navigation]
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      logScreenView('ProductFormScreen', 'ProductFormScreen');
+    }, [])
   );
 
   return (

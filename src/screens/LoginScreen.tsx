@@ -8,6 +8,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Button from '../components/atoms/Button';
 import useLoginScreenStyles from '../styles/LoginScreenStyles';
 import { useAuthStore } from '../store/useAuthStore';
+import { useFocusEffect } from '@react-navigation/native';
+import { logScreenView } from '../utils/firebase';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -99,6 +101,12 @@ const LoginScreen = () => {
   const handleNavigateToSignUp = useCallback(() => {
     navigation.navigate('SignUp');
   }, [navigation]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      logScreenView('LoginScreen', 'LoginScreen');
+    }, [])
+  );
 
   return (
     <View style={styles.container}>

@@ -27,6 +27,8 @@ import { useAuthStore } from '../store/useAuthStore';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { productService } from '../services/productService';
 import { useCartStore } from '../store/useCartStore';
+import { useFocusEffect } from '@react-navigation/native';
+import { logScreenView } from '../utils/firebase';
 
 type ProductDetailsScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetails'>;
 
@@ -362,6 +364,12 @@ const ProductDetailsScreen = () => {
       title: selectedProduct.title,
     });
   }, [selectedProduct]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      logScreenView('ProductDetails', 'ProductDetails');
+    }, [])
+  );
 
   if (loading) {
     return <ActivityIndicator size="large" style={styles.loader} />;

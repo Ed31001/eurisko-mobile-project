@@ -14,6 +14,8 @@ import { launchCamera, launchImageLibrary, ImagePickerResponse, CameraOptions, I
 import Button from '../components/atoms/Button';
 import useEditProfileScreenStyles from '../styles/EditProfileScreenStyles';
 import { useThemeStore } from '../store/useThemeStore';
+import { useFocusEffect } from '@react-navigation/native';
+import { logScreenView } from '../utils/firebase';
 
 // Memoized input to avoid re-rendering
 const MemoizedInput = React.memo((props: React.ComponentProps<typeof TextInput>) => <TextInput {...props} />);
@@ -150,6 +152,13 @@ const ProfileInputs = React.memo(({
 ));
 
 const EditProfileScreen = () => {
+  // Log screen view on focus
+  useFocusEffect(
+    useCallback(() => {
+      logScreenView('EditProfile', 'EditProfile');
+    }, [])
+  );
+
   // Select only what you need from the store
   const user = useAuthStore(s => s.user);
   const updateProfile = useAuthStore(s => s.updateProfile);

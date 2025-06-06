@@ -18,6 +18,8 @@ import { launchCamera, launchImageLibrary, CameraOptions, ImageLibraryOptions, M
 import Button from '../components/atoms/Button';
 import useSignUpScreenStyles from '../styles/SignUpScreenStyles';
 import { useAuthStore } from '../store/useAuthStore';
+import { useFocusEffect } from '@react-navigation/native';
+import { logScreenView } from '../utils/firebase';
 
 const signUpSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
@@ -213,6 +215,12 @@ const SignUpScreen = () => {
       isPortrait ? styles.scrollViewContentPortrait : styles.scrollViewContentLandscape,
     ],
     [styles, isPortrait]
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      logScreenView('SignUpScreen', 'SignUpScreen');
+    }, [])
   );
 
   return (

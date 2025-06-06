@@ -13,6 +13,7 @@ type Product = {
   title: string;
   price: number;
   images: Array<{ url: string }>;
+  description?: string;
 };
 
 const ProductList = () => {
@@ -28,7 +29,7 @@ const ProductList = () => {
     loadPreviousPage,
     refreshProducts,
     error,
-    searchQuery, // <-- add this
+    searchQuery,
   } = useProductStore();
 
   const styles = useProductListStyles();
@@ -132,10 +133,13 @@ const ProductList = () => {
           }}
         >
           <ProductItem
+            key={item._id}
+            id={item._id}
             title={item.title}
             price={item.price}
             imageUrl={imageUrl}
             onPress={() => navigation.navigate('ProductDetails', { id: item._id })}
+            description={item.description}
           />
         </Animated.View>
       );
@@ -186,7 +190,6 @@ const ProductList = () => {
     );
   }
 
-  // Add these to your ProductListStyles (or define them here for quick fix)
   const noResultsContainer = [
     styles.container,
     styles.noResultsContainer,

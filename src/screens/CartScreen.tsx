@@ -9,6 +9,8 @@ import {
 import { useCartStore } from '../store/useCartStore';
 import { Swipeable } from 'react-native-gesture-handler';
 import useCartScreenStyles from '../styles/CartScreenStyles';
+import { useFocusEffect } from '@react-navigation/native';
+import { logScreenView } from '../utils/firebase';
 
 interface CartItem {
   product: {
@@ -92,6 +94,12 @@ const CartScreen = () => {
         0
       ),
     [items]
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      logScreenView('CartScreen', 'CartScreen');
+    }, [])
   );
 
   return (

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, Image, ActivityIndicator, Animated, TouchableOpacity } from 'react-native';
+import { View, Text, Image, ActivityIndicator, Animated, TouchableOpacity, Share } from 'react-native';
 import useProductItemStyles from '../../styles/ProductItemStyles';
 import { useThemeStore } from '../../store/useThemeStore';
 
@@ -8,9 +8,11 @@ type ProductItemProps = {
   price: number;
   imageUrl: string;
   onPress: () => void;
+  id: string; // Add id for deep linking
+  description?: string; // Optional, if you want to share description too
 };
 
-const ProductItem = ({ title, price, imageUrl, onPress }: ProductItemProps) => {
+const ProductItem = ({ title, price, imageUrl, onPress, id, description }: ProductItemProps) => {
   const styles = useProductItemStyles();
   const theme = useThemeStore((state) => state.theme);
   const [imageError, setImageError] = useState(false);
@@ -45,6 +47,21 @@ const ProductItem = ({ title, price, imageUrl, onPress }: ProductItemProps) => {
     console.error('Failed to load image:', imageUrl);
     setImageError(true);
     setLoading(false);
+  };
+
+  // Share handler (same as ProductDetailsScreen)
+  const handleShare = async () => {
+    try {
+      const url = `myproject://products/${id}`;
+      const message = `Check out this product: ${title}\n\n${description ? description + '\n' : ''}Price: $${price}\n\nOpen in app: ${url}`;
+      await Share.share({
+        message,
+        url,
+        title,
+      });
+    } catch (error) {
+      console.error('Error sharing product:', error);
+    }
   };
 
   return (
@@ -91,6 +108,14 @@ const ProductItem = ({ title, price, imageUrl, onPress }: ProductItemProps) => {
         <View style={styles.info}>
           <Text style={styles.title} numberOfLines={2}>{title}</Text>
           <Text style={styles.price}>${price}</Text>
+          {/* Share Button with Emoji */}
+          <TouchableOpacity
+            onPress={handleShare}
+            style={styles.shareButton}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={styles.shareButtonText}>🔗 Share</Text>
+          </TouchableOpacity>
         </View>
       </Animated.View>
     </TouchableOpacity>

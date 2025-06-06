@@ -68,6 +68,17 @@ const useProductItemStyles = () => {
       fontSize: moderateScale(14),
       color: theme.textColor,
     },
+    shareButton: {
+      marginTop: 8,
+      alignSelf: 'flex-end',
+      padding: 4,
+      borderRadius: 4,
+    },
+    shareButtonText: {
+      color: '#007AFF',
+      fontSize: 14,
+      fontWeight: 'bold',
+    },
   });
 };
 
