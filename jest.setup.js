@@ -33,19 +33,6 @@ jest.mock('react-native-push-notification', () => ({
   // Add any other methods you use as jest.fn()
 }));
 
-// Mock @react-native-community/push-notification-ios if used
-jest.mock('@react-native-community/push-notification-ios', () => ({
-  addEventListener: jest.fn(),
-  removeEventListener: jest.fn(),
-  requestPermissions: jest.fn(),
-  abandonPermissions: jest.fn(),
-  checkPermissions: jest.fn(),
-  getInitialNotification: jest.fn(),
-  addNotificationRequest: jest.fn(),
-  removeAllDeliveredNotifications: jest.fn(),
-  // Add any other methods you use as jest.fn()
-}));
-
 // Mock react-native-gesture-handler
 jest.mock('react-native-gesture-handler', () => {
   const View = require('react-native').View;

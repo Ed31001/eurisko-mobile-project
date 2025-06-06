@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authService } from '../services/authService';
+import { saveTokens, getTokens, clearTokens } from '../utils/secureStorage';
 
 type User = {
   id: string;
@@ -45,10 +46,11 @@ type AuthState = {
   refreshAccessToken: () => Promise<boolean>;
   getUserProfile: () => Promise<boolean>;
   updateProfile: (data: FormData) => Promise<boolean>;
+  rehydrate?: () => Promise<void>;
 };
 
-export const useAuthStore = create(
-  persist<AuthState>(
+export const useAuthStore = create<AuthState>()(
+  persist(
     (set, get) => ({
       isLoggedIn: false,
       loading: false,
@@ -95,7 +97,7 @@ export const useAuthStore = create(
         set({ loading: true, error: null });
         try {
           const email = get().email;
-          if (!email){ throw new Error('No email set'); }
+          if (!email) throw new Error('No email set');
           await authService.verifyOtp(email, otp);
           set({ isLoggedIn: false });
           return true;
@@ -111,7 +113,7 @@ export const useAuthStore = create(
         set({ loading: true, error: null });
         try {
           const email = get().email;
-          if (!email){ throw new Error('No email set'); }
+          if (!email) throw new Error('No email set');
           await authService.resendOtp(email);
           return true;
         } catch (err: any) {
@@ -127,6 +129,7 @@ export const useAuthStore = create(
         try {
           const response = await authService.login(email, password);
           const { accessToken, refreshToken } = response.data;
+          await saveTokens(accessToken, refreshToken); // Securely store tokens
           set({
             isLoggedIn: true,
             accessToken,
@@ -143,7 +146,8 @@ export const useAuthStore = create(
         }
       },
 
-      logout: () => {
+      logout: async () => {
+        await clearTokens(); // Remove tokens from secure storage
         set({
           isLoggedIn: false,
           accessToken: null,
@@ -151,6 +155,19 @@ export const useAuthStore = create(
           email: null,
           user: null,
         });
+      },
+
+      // On app start, load tokens from secure storage
+      rehydrate: async () => {
+        const tokens = await getTokens();
+        if (tokens) {
+          set({
+            accessToken: tokens.accessToken,
+            refreshToken: tokens.refreshToken,
+            isLoggedIn: true,
+          });
+          await get().getUserProfile();
+        }
       },
 
       forgotPassword: async (email) => {
@@ -169,10 +186,11 @@ export const useAuthStore = create(
       refreshAccessToken: async () => {
         try {
           const refreshToken = get().refreshToken;
-          if (!refreshToken){ return false; }
+          if (!refreshToken) return false;
 
           const response = await authService.refreshToken(refreshToken);
           const { accessToken, refreshToken: newRefreshToken } = response.data;
+          await saveTokens(accessToken, newRefreshToken);
           set({ accessToken, refreshToken: newRefreshToken });
           return true;
         } catch (error) {
@@ -216,6 +234,11 @@ export const useAuthStore = create(
     {
       name: 'auth-storage',
       storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => {
+        // Exclude accessToken and refreshToken from AsyncStorage
+        const { accessToken, refreshToken, ...rest } = state;
+        return rest;
+      },
     }
   )
 );

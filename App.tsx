@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import AuthStack from './src/navigation/stacks/AuthStack';
 import TabNavigator from './src/navigation/TabNavigator';
@@ -28,6 +28,10 @@ const ThemedApp = () => {
 };
 
 const App = () => {
+  useEffect(() => {
+    useAuthStore.getState().rehydrate?.();
+  }, []);
+
   return (
     <GestureHandlerRootView style={styles.rootView}>
       <NavigationContainer
